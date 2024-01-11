@@ -6,9 +6,9 @@ const usersController = require('../../controllers/usersController');
 
 router.route('/')
     .get(usersController.getAllUsers)
-    .delete(usersController.deleteUser);
 
 router.route('/:id')
-    .get(usersController.getUser);
+    .get(usersController.getUser)
+    .delete(usersController.deleteUser)
 
 module.exports = router;
