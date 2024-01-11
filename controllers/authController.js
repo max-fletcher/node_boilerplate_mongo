@@ -28,10 +28,12 @@ const handleLogin = async (req, res) => {
         const newRefreshToken = jwt.sign(
             { "username": foundUser.username },
             process.env.REFRESH_TOKEN_SECRET,
-            { expiresIn: '15s' }
+            { expiresIn: '1d' }
         );
 
         // Changed to let keyword
+        // IF JWT DOESN'T EXIST IN THE REQUEST COOKIE, PRESERVE/SAVE ALL COOKIES IN newRefreshTokenArray, ELSE(I.E JWT EXISTS IN THE REQUEST COOKIE), 
+        // PRESERVE/SAVE ALL COOKIES EXCEPT THAT IN newRefreshTokenArray
         let newRefreshTokenArray =
             !cookies?.jwt
                 ? foundUser.refreshToken
