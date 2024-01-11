@@ -13,13 +13,13 @@ const handleLogin = async (req, res) => {
     // evaluate password 
     const match = await bcrypt.compare(password, foundUser.password);
     if (match) {
-        const roles = Object.values(foundUser.roles).filter(Boolean);
+        // const roles = Object.values(foundUser.roles).filter(Boolean);
         // create JWTs
         const accessToken = jwt.sign(
             {
                 "UserInfo": {
                     "username": foundUser.username,
-                    "roles": roles
+                    // "roles": roles
                 }
             },
             process.env.ACCESS_TOKEN_SECRET,
@@ -64,7 +64,7 @@ const handleLogin = async (req, res) => {
         foundUser.refreshToken = [...newRefreshTokenArray, newRefreshToken];
         const result = await foundUser.save();
         console.log(result);
-        console.log(roles);
+        // console.log(roles);
 
         // Creates Secure Cookie with refresh token
         res.cookie('jwt', newRefreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });

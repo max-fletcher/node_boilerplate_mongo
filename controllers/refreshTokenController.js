@@ -49,12 +49,12 @@ const handleRefreshToken = async (req, res) => {
 
             // Refresh token was still valid
             // IF ALL OTHER IF CONDITIONS ABOVE ARE NOT VISITED, MEANS ITS A VALID REFRESH TOKEN. HENCE THE CODE BELOW WILL WORK.
-            const roles = Object.values(foundUser.roles);
+            // const roles = Object.values(foundUser.roles);
             const accessToken = jwt.sign(
                 {
                     "UserInfo": {
                         "username": decoded.username,
-                        "roles": roles
+                        // "roles": roles
                     }
                 },
                 process.env.ACCESS_TOKEN_SECRET,
@@ -73,7 +73,8 @@ const handleRefreshToken = async (req, res) => {
             // Creates Secure Cookie with refresh token
             res.cookie('jwt', newRefreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
 
-            res.json({ roles, accessToken })
+            // res.json({ roles, accessToken })
+            res.json({ accessToken })
         }
     );
 }

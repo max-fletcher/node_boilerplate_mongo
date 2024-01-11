@@ -8317,3 +8317,14 @@
 20240111	15:42:51	e8894e3e-86cd-4dc3-8c3b-f18e6b191168	GET	undefined	/employees
 20240111	15:42:52	64adfe37-a091-474e-8397-d068fdbfb3d5	GET	undefined	/employees
 20240111	15:42:53	b733815e-4735-4a1f-a04b-ec885dcb235b	GET	undefined	/employees
+20240111	16:13:00	1f7d5f36-a74f-44bf-8a4d-001f116cf618	GET	undefined	/refresh
+20240111	16:13:16	0d983739-28c6-47c7-a56e-261216c99b78	GET	undefined	/refresh
+20240111	16:29:54	89609a20-2d4c-4412-bc49-4f8c302bfcbb	GET	undefined	/refresh
+20240111	16:29:57	4a4c8ebb-863c-4e6f-9f34-a2f02dc63aa2	GET	undefined	/employees
+20240111	16:30:02	c9ddce7b-3b97-4bcc-b714-fa17b289479d	GET	undefined	/employees
+20240111	16:30:02	f8dcc24d-4097-45c7-aa9d-9b30de58e81e	GET	undefined	/employees
+20240111	16:30:03	8cd8e0a1-4311-4bc5-8c19-4b3fcca58bb8	GET	undefined	/employees
+20240111	16:30:03	7e3287e1-fd3e-46cb-9e60-c2d97fa3feb5	GET	undefined	/employees
+20240111	16:30:04	8306baea-8232-4cbb-9530-6e0c1fdda34a	GET	undefined	/employees
+20240111	16:30:04	1da144ec-d675-422c-83b9-b98d515c6f51	GET	undefined	/employees
+20240111	16:30:07	a2881afe-39c3-456e-8932-85e3b21abfd3	GET	undefined	/refresh
