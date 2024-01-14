@@ -22,8 +22,11 @@ const handleRefreshToken = async (req, res) => {
                 if (err) return res.sendStatus(403); //Forbidden // IF THERE IS AN ERROR IN DECODING THE JWT
                 console.log('attempted refresh token reuse!')
                 const hackedUser = await User.findOne({ username: decoded.username }).exec();
-                hackedUser.refreshToken = [];
-                const result = await hackedUser.save();
+                if(hackedUser){
+                  console.log(hackedUser);
+                  hackedUser.refreshToken = [];
+                  const result = await hackedUser.save();
+                }
                 console.log(result);
             }
         )

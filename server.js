@@ -40,14 +40,16 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 
 // routes
 app.use('/', require('./routes/root'));
-app.use('/register', require('./routes/register'));
-app.use('/auth', require('./routes/auth'));
-app.use('/refresh', require('./routes/refresh'));
-app.use('/logout', require('./routes/logout'));
+app.use('/api/v1/register', require('./routes/register'));
+app.use('/api/v1/auth', require('./routes/auth'));
+app.use('/api/v1/refresh', require('./routes/refresh'));
+app.use('/api/v1/logout', require('./routes/logout'));
+
+app.use('/api/v1/simple-jwt-auth', require('./routes/simple-jwt-auth'));
 
 app.use(verifyJWT);
-app.use('/employees', require('./routes/api/employees'));
-app.use('/users', require('./routes/api/users'));
+app.use('/api/v1/employees', require('./routes/api/employees'));
+app.use('/api/v1/users', require('./routes/api/users'));
 
 app.all('*', (req, res) => {
   res.status(404);
@@ -66,3 +68,11 @@ mongoose.connection.once('open', () => {
   console.log('Connected to MongoDB');
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 });
+
+
+
+
+
+
+// const expressListRoutes = require('express-list-routes');
+// expressListRoutes(app, { prefix: '/' });
