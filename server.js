@@ -7,6 +7,7 @@ const corsOptions = require('./config/corsOptions');
 const { logger } = require('./middleware/logEvents');
 const errorHandler = require('./middleware/errorHandler');
 const verifyJWT = require('./middleware/verifyJWT');
+const verifySimpleJWT = require('./middleware/verifySimpleJWT');
 const cookieParser = require('cookie-parser');
 const credentials = require('./middleware/credentials');
 const mongoose = require('mongoose');
@@ -45,11 +46,14 @@ app.use('/api/v1/auth', require('./routes/auth'));
 app.use('/api/v1/refresh', require('./routes/refresh'));
 app.use('/api/v1/logout', require('./routes/logout'));
 
+// USING SIMPLE JWT AUTH. REMEMBER TO COMMENT THE ROUTES BELOW THESE TO AVOID ROUTE DUPLICATION/ROUTE CONFLICT
 app.use('/api/v1/simple-jwt-auth', require('./routes/simple-jwt-auth'));
+app.use('/api/v1/employees', verifySimpleJWT, require('./routes/api/employees'));
+app.use('/api/v1/users', verifySimpleJWT, require('./routes/api/users'));
 
-app.use(verifyJWT);
-app.use('/api/v1/employees', require('./routes/api/employees'));
-app.use('/api/v1/users', require('./routes/api/users'));
+// app.use(verifyJWT);
+// app.use('/api/v1/employees', require('./routes/api/employees'));
+// app.use('/api/v1/users', require('./routes/api/users'));
 
 app.all('*', (req, res) => {
   res.status(404);
