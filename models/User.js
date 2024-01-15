@@ -20,6 +20,10 @@ const userSchema = new Schema({
     },
     refreshToken: [String],
     simpleJWTLoginToken: String,
+    posts: [{
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: "Post"
+    }],
 });
 
 module.exports = mongoose.model('User', userSchema);

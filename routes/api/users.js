@@ -7,6 +7,9 @@ const usersController = require('../../controllers/usersController');
 router.route('/')
     .get(usersController.getAllUsers)
 
+router.route('/users-with-posts')
+    .get(usersController.getAllUsersWithPosts)
+
 router.route('/:id')
     .get(usersController.getUser)
     .delete(usersController.deleteUser)

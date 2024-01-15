@@ -5,12 +5,12 @@ const verifySimpleJWT = (req, res, next) => {
     const cookies = req.cookies;
     const simpleJWTToken = cookies.simple_login_jwt
 
-    console.log('authHeader', authHeader, 'all_cookies', cookies, 'simple_jwt', simpleJWTToken, 'again', cookies.simple_login_jwt);
+    // console.log('authHeader', authHeader, 'all_cookies', cookies, 'simple_jwt', simpleJWTToken, 'again', cookies.simple_login_jwt);
 
     if(authHeader || simpleJWTToken){
       if (!authHeader?.startsWith('Bearer ')) return res.sendStatus(401);
       const token = simpleJWTToken ? simpleJWTToken : authHeader.split(' ')[1];
-      console.log(token)
+      // console.log(token)
       jwt.verify(
           token,
           process.env.ACCESS_TOKEN_SECRET,

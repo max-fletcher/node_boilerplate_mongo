@@ -50,6 +50,7 @@ app.use('/api/v1/logout', require('./routes/logout'));
 app.use('/api/v1/simple-jwt-auth', require('./routes/simple-jwt-auth'));
 app.use('/api/v1/employees', verifySimpleJWT, require('./routes/api/employees'));
 app.use('/api/v1/users', verifySimpleJWT, require('./routes/api/users'));
+app.use('/api/v1/posts', verifySimpleJWT, require('./routes/api/posts'));
 
 // app.use(verifyJWT);
 // app.use('/api/v1/employees', require('./routes/api/employees'));
