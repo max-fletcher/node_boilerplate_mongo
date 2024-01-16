@@ -1,4 +1,5 @@
 const Post = require('../models/Post');
+const User = require('../models/User');
 var mongoose = require('mongoose');
 
 const getAllPosts = async (req, res) => {
@@ -15,7 +16,7 @@ const getAllPosts = async (req, res) => {
 
 const getAllPostsWithUsers = async (req, res) => {
   try {
-    const posts = await Post.find().select('text createdAt updatedAt').populate('user', 'username password'); // ONLY SELECT CERTAIN FIELDS FROM 'Post' AND 'User'
+    const posts = await Post.find().select('text createdAt updatedAt').populate('user', 'email password'); // ONLY SELECT CERTAIN FIELDS FROM 'Post' AND 'User'
     if (!posts) return res.status(204).json({ 'message': 'No posts found' });
     res.json(posts);
   }
@@ -31,12 +32,17 @@ const createNewPost = async (req, res) => {
   }
 
   try {
-      const result = await Post.create({
+      const post = await Post.create({
           text : req.body.text,
           user: req.body.user_id
       });
 
-      res.status(201).json(result);
+      const user = await User.findById(req.body.user_id)
+      user.posts.push(post._id)
+      const result = await user.save()
+      console.log('RESULT', result)
+
+      res.status(201).json(post);
   } catch (error) {
     console.error(error);
     res.status(400).json({ 'message' : 'Something went wrong!' });

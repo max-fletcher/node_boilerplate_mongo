@@ -1,8 +1,12 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+// username: {
+//     type: String,
+//     required: true
+// },
 const userSchema = new Schema({
-    username: {
+    email: {
         type: String,
         required: true
     },
@@ -22,6 +26,7 @@ const userSchema = new Schema({
     simpleJWTLoginToken: String,
     posts: [{
       type: mongoose.SchemaTypes.ObjectId,
+      default: () => [],
       ref: "Post"
     }],
 });

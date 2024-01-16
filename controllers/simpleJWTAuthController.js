@@ -4,12 +4,12 @@ const jwt = require('jsonwebtoken');
 const { simpleJWTLoginTokenDuration } = require('../enums/tokenDurations');
 
 const simpleJWTRegister = async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) return res.status(400).json({ 'message': 'Username and password are required.' });
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ 'message': 'Email and password are required.' });
 
 
   // check for duplicate usernames in the db
-  const duplicate = await User.findOne({ username: username }).exec();
+  const duplicate = await User.findOne({ email: email }).exec();
   if (duplicate) return res.sendStatus(409); //Conflict 
 
   try {
@@ -20,7 +20,7 @@ const simpleJWTRegister = async (req, res) => {
     const simpleJWTLoginToken = jwt.sign(
         {
             "UserInfo": {
-                "username": username,
+                "email": email,
             }
         },
         process.env.ACCESS_TOKEN_SECRET,
@@ -29,7 +29,7 @@ const simpleJWTRegister = async (req, res) => {
 
       //create and store the new user
       const result = await User.create({
-          "username": username,
+          "email": email,
           "password": hashedPwd,
           "simpleJWTLoginToken": simpleJWTLoginToken
       });
@@ -39,17 +39,17 @@ const simpleJWTRegister = async (req, res) => {
       // Creates Secure Cookie with refresh token
       res.cookie('simple_jwt_login', simpleJWTLoginToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
 
-      res.status(201).json({ message: `Registration for ${username} successful!`, simpleJWTLoginToken : simpleJWTLoginToken });
+      res.status(201).json({ message: `Registration for ${email} successful!`, simpleJWTLoginToken : simpleJWTLoginToken });
   } catch (err) {
       res.status(500).json({ 'message': err.message });
   }
 }
 
 const simpleJWTLogin = async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) return res.status(400).json({ 'message': 'Username and password are required.' });
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ 'message': 'Email and password are required.' });
 
-  const foundUser = await User.findOne({ username: username }).exec();
+  const foundUser = await User.findOne({ email: email }).exec();
   if (!foundUser) return res.sendStatus(401); //Unauthorized
   // evaluate password 
   const match = await bcrypt.compare(password, foundUser.password);
@@ -59,7 +59,7 @@ const simpleJWTLogin = async (req, res) => {
       const simpleJWTLoginToken = jwt.sign(
           {
               "UserInfo": {
-                  "username": foundUser.username,
+                  "email": foundUser.email,
               }
           },
           process.env.ACCESS_TOKEN_SECRET,
@@ -80,4 +80,38 @@ const simpleJWTLogin = async (req, res) => {
   }
 }
 
-module.exports = { simpleJWTRegister, simpleJWTLogin };
+const getAuthUser = async (req, res) => {
+  const cookies = req.cookies;
+  if (!cookies?.simple_jwt_login) return res.sendStatus(204); //No content
+  const simpleJWTLoginToken = cookies.simple_jwt_login;
+
+  const foundUser = await User.findOne({ simpleJWTLoginToken }).exec();
+  console.log(foundUser);
+  if (!foundUser) {
+    res.clearCookie('simple_login_jwt', { httpOnly: true, sameSite: 'None', secure: true });
+    return res.sendStatus(204);
+  }
+
+  res.status(200).json({ message: foundUser });
+}
+
+const simpleJWTLogout = async (req, res) => {
+    const cookies = req.cookies;
+    if (!cookies?.simple_login_jwt) return res.sendStatus(204); //No content
+    const simpleJWTLoginToken = cookies.simple_login_jwt;
+
+  const foundUser = await User.findOne({ simpleJWTLoginToken }).exec();
+  if (!foundUser) {
+    res.clearCookie('simple_login_jwt', { httpOnly: true, sameSite: 'None', secure: true });
+    return res.sendStatus(204);
+  }
+
+  foundUser.simpleJWTLoginToken = null;
+  const result = await foundUser.save();
+  console.log(result);
+
+  res.clearCookie('simple_login_jwt', { httpOnly: true, sameSite: 'None', secure: true });
+  res.sendStatus(204);
+}
+
+module.exports = { simpleJWTRegister, simpleJWTLogin, simpleJWTLogout, getAuthUser };
