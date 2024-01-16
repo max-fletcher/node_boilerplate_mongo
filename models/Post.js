@@ -6,16 +6,6 @@ const postSchema = new Schema({
       type: String,
       required: true
   },
-  // createdAt: {
-  //     type: Date,
-  //     immutable: true,
-  //     default: () => Date.now()
-  // },
-  // updatedAt: {
-  //   type: Date,
-  //   required: true,
-  //   default: () => Date.now()
-  // },
   user: {
     type: mongoose.SchemaTypes.ObjectId,
     required: true,
