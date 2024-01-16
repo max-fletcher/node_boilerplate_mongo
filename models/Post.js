@@ -6,22 +6,22 @@ const postSchema = new Schema({
       type: String,
       required: true
   },
-  createdAt: {
-      type: Date,
-      immutable: true,
-      default: () => Date.now()
-  },
-  updatedAt: {
-    type: Date,
-    required: true,
-    default: () => Date.now()
-  },
+  // createdAt: {
+  //     type: Date,
+  //     immutable: true,
+  //     default: () => Date.now()
+  // },
+  // updatedAt: {
+  //   type: Date,
+  //   required: true,
+  //   default: () => Date.now()
+  // },
   user: {
     type: mongoose.SchemaTypes.ObjectId,
     required: true,
     default: () => [],
     ref: "User"
   },
-});
+}, { timestamps : true });
 
 module.exports = mongoose.model('Post', postSchema);

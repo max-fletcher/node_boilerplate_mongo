@@ -37,7 +37,7 @@ const simpleJWTRegister = async (req, res) => {
       console.log(result);
 
       // Creates Secure Cookie with refresh token
-      res.cookie('simple_jwt_login', simpleJWTLoginToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
+      res.cookie('simple_jwt', simpleJWTLoginToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
 
       res.status(201).json({ message: `Registration for ${email} successful!`, simpleJWTLoginToken : simpleJWTLoginToken });
   } catch (err) {
@@ -71,7 +71,7 @@ const simpleJWTLogin = async (req, res) => {
       console.log(result);
 
       // Creates Secure Cookie with refresh token
-      res.cookie('simple_login_jwt', simpleJWTLoginToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
+      res.cookie('simple_jwt', simpleJWTLoginToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
 
       res.json({ simpleJWTLoginToken });
 
@@ -82,13 +82,13 @@ const simpleJWTLogin = async (req, res) => {
 
 const getAuthUser = async (req, res) => {
   const cookies = req.cookies;
-  if (!cookies?.simple_jwt_login) return res.sendStatus(204); //No content
-  const simpleJWTLoginToken = cookies.simple_jwt_login;
+  if (!cookies?.simple_jwt) return res.sendStatus(204); //No content
+  const simpleJWTLoginToken = cookies.simple_jwt;
 
   const foundUser = await User.findOne({ simpleJWTLoginToken }).exec();
   console.log(foundUser);
   if (!foundUser) {
-    res.clearCookie('simple_login_jwt', { httpOnly: true, sameSite: 'None', secure: true });
+    res.clearCookie('simple_jwt', { httpOnly: true, sameSite: 'None', secure: true });
     return res.sendStatus(204);
   }
 
@@ -97,12 +97,12 @@ const getAuthUser = async (req, res) => {
 
 const simpleJWTLogout = async (req, res) => {
     const cookies = req.cookies;
-    if (!cookies?.simple_login_jwt) return res.sendStatus(204); //No content
-    const simpleJWTLoginToken = cookies.simple_login_jwt;
+    if (!cookies?.simple_jwt) return res.sendStatus(204); //No content
+    const simpleJWTLoginToken = cookies.simple_jwt;
 
   const foundUser = await User.findOne({ simpleJWTLoginToken }).exec();
   if (!foundUser) {
-    res.clearCookie('simple_login_jwt', { httpOnly: true, sameSite: 'None', secure: true });
+    res.clearCookie('simple_jwt', { httpOnly: true, sameSite: 'None', secure: true });
     return res.sendStatus(204);
   }
 
@@ -110,7 +110,7 @@ const simpleJWTLogout = async (req, res) => {
   const result = await foundUser.save();
   console.log(result);
 
-  res.clearCookie('simple_login_jwt', { httpOnly: true, sameSite: 'None', secure: true });
+  res.clearCookie('simple_jwt', { httpOnly: true, sameSite: 'None', secure: true });
   res.sendStatus(204);
 }
 
