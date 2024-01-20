@@ -4,12 +4,12 @@ const bcrypt = require('bcrypt');
 const { accessTokenDuration, refreshTokenDuration } = require('../enums/tokenDurations');
 
 const handleNewUser = async (req, res) => {
-    const { username, password } = req.body;
-    console.log(req.body, username, password);
-    if (!username || !password) return res.status(400).json({ 'message': 'Username and password are required.' });
+    const { email, password } = req.body;
+    console.log(req.body, email, password);
+    if (!email || !password) return res.status(400).json({ 'message': 'email and password are required.' });
 
-    // check for duplicate usernames in the db
-    const duplicate = await User.findOne({ username: username }).exec();
+    // check for duplicate emails in the db
+    const duplicate = await User.findOne({ email: email }).exec();
     if (duplicate) return res.sendStatus(409); //Conflict 
 
     try {
@@ -20,7 +20,7 @@ const handleNewUser = async (req, res) => {
       const accessToken = jwt.sign(
           {
               "UserInfo": {
-                  "username": username,
+                  "email": email,
                   // "roles": roles
               }
           },
@@ -28,19 +28,16 @@ const handleNewUser = async (req, res) => {
           { expiresIn: accessTokenDuration }
       );
       const newRefreshToken = jwt.sign(
-          { "username": username },
+          { "email": email },
           process.env.REFRESH_TOKEN_SECRET,
           { expiresIn: refreshTokenDuration }
       );
 
       const refreshTokenArray = [newRefreshToken];
 
-
-
-
         //create and store the new user
         const result = await User.create({
-            "username": username,
+            "email": email,
             "password": hashedPwd,
             "refreshToken": refreshTokenArray
         });
@@ -49,7 +46,7 @@ const handleNewUser = async (req, res) => {
 
         res.cookie('jwt', newRefreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
 
-        res.status(201).json({ message: `Registration for ${username} successful!`, accessToken : accessToken });
+        res.status(201).json({ message: `Registration for ${email} successful!`, accessToken : accessToken });
     } catch (err) {
         res.status(500).json({ 'message': err.message });
     }

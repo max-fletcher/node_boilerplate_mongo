@@ -1,0 +1,43 @@
+[{
+  "_id": {
+    "$oid": "65abfa332c806fe57ad7cfb1"
+  },
+  "email": "test1@mail.com",
+  "roles": {
+    "User": 2001
+  },
+  "password": "$2b$10$XICDGEmy.4ZmD/jA3CYzWuRxPZ2gDG7dda5RcXQzViLg0NT8048f.",
+  "refreshToken": [],
+  "simpleJWTLoginToken": null,
+  "posts": [
+    "65abfa512c806fe57ad7cfb8",
+    "65abfa532c806fe57ad7cfbd"
+  ],
+  "createdAt": {
+    "$date": "2024-01-20T16:52:03.370Z"
+  },
+  "updatedAt": {
+    "$date": "2024-01-20T16:52:43.222Z"
+  },
+  "__v": 2
+},
+{
+  "_id": {
+    "$oid": "65abfa622c806fe57ad7cfc4"
+  },
+  "email": "test2@mail.com",
+  "roles": {
+    "User": 2001
+  },
+  "password": "$2b$10$duEIWHkHvkrp0Ua4tAdUxOAr6TT8BbPbZrWDg7M5xNGuWt4vBrAG.",
+  "refreshToken": [],
+  "simpleJWTLoginToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySW5mbyI6eyJlbWFpbCI6InRlc3QyQG1haWwuY29tIn0sImlhdCI6MTcwNTc2OTU4OSwiZXhwIjoxNzA1ODU1OTg5fQ.4AqIp0KZjtbqQsrTvRUdrW9B_Ul56nH85F3JjywBZUQ",
+  "posts": [],
+  "createdAt": {
+    "$date": "2024-01-20T16:52:50.745Z"
+  },
+  "updatedAt": {
+    "$date": "2024-01-20T16:53:09.350Z"
+  },
+  "__v": 0
+}]

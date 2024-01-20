@@ -7,7 +7,8 @@ const postSchema = new Schema({
       required: true
   },
   user: {
-    type: mongoose.SchemaTypes.ObjectId,
+    // type: mongoose.SchemaTypes.ObjectId,
+    type: String,
     required: true,
     default: () => [],
     ref: "User"

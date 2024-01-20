@@ -52,7 +52,7 @@ app.use('/api/v1/employees', verifySimpleJWT, require('./routes/api/employees'))
 app.use('/api/v1/users', verifySimpleJWT, require('./routes/api/users'));
 app.use('/api/v1/posts', verifySimpleJWT, require('./routes/api/posts'));
 
-// app.use(verifyJWT);
+// app.use(verifyJWT) //IF YOU WANT TO APPLY MIDDLEWARE TO THE ROUTES BELOW
 // app.use('/api/v1/employees', require('./routes/api/employees'));
 // app.use('/api/v1/users', require('./routes/api/users'));
 
@@ -73,11 +73,6 @@ mongoose.connection.once('open', () => {
   console.log('Connected to MongoDB');
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 });
-
-
-
-
-
 
 // const expressListRoutes = require('express-list-routes');
 // expressListRoutes(app, { prefix: '/' });
