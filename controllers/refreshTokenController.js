@@ -12,7 +12,7 @@ const handleRefreshToken = async (req, res) => {
     const foundUser = await User.findOne({ refreshToken }).exec();
 
     // Detected refresh token reuse!
-    // WHEN A JWT HAS A USER'S username BUT IS NOT INSIDE THE ARRAY IN HIS DATABASE RECORD, WE EMPTY ALL REFRESH
+    // WHEN A JWT HAS A USER'S email BUT IS NOT INSIDE THE ARRAY IN HIS DATABASE RECORD, WE EMPTY ALL REFRESH
     // TOKENS INSIDE THAT USER'S TOKENS ARRAY. AFTER THAT, IT RETURN A 403 STATUS CODE AS RESPONSE
     if (!foundUser) {
         jwt.verify(
@@ -21,7 +21,7 @@ const handleRefreshToken = async (req, res) => {
             async (err, decoded) => {
                 if (err) return res.sendStatus(403); //Forbidden // IF THERE IS AN ERROR IN DECODING THE JWT
                 console.log('attempted refresh token reuse!')
-                const hackedUser = await User.findOne({ username: decoded.username }).exec();
+                const hackedUser = await User.findOne({ email: decoded.email }).exec();
                 if(hackedUser){
                   console.log(hackedUser);
                   hackedUser.refreshToken = [];
@@ -48,8 +48,8 @@ const handleRefreshToken = async (req, res) => {
                 const result = await foundUser.save();
                 console.log(result);
             }
-            // IF REFRESH TOKEN DOESN'T BELONG TO THE foundUser. HENCE foundUser's username IS NOT THE SAME AS DECODED username
-            if (err || foundUser.username !== decoded.username) return res.sendStatus(403);
+            // IF REFRESH TOKEN DOESN'T BELONG TO THE foundUser. HENCE foundUser's email IS NOT THE SAME AS DECODED email
+            if (err || foundUser.email !== decoded.email) return res.sendStatus(403);
 
             // Refresh token was still valid
             // IF ALL OTHER IF CONDITIONS ABOVE ARE NOT VISITED, MEANS ITS A VALID REFRESH TOKEN. HENCE THE CODE BELOW WILL WORK.
@@ -57,7 +57,7 @@ const handleRefreshToken = async (req, res) => {
             const accessToken = jwt.sign(
                 {
                     "UserInfo": {
-                        "username": decoded.username,
+                        "email": decoded.email,
                         // "roles": roles
                     }
                 },
@@ -66,7 +66,7 @@ const handleRefreshToken = async (req, res) => {
             );
 
             const newRefreshToken = jwt.sign(
-                { "username": foundUser.username },
+                { "email": foundUser.email },
                 process.env.REFRESH_TOKEN_SECRET,
                 { expiresIn: refreshTokenDuration }
             );

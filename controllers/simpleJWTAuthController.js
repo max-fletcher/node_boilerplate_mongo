@@ -8,7 +8,7 @@ const simpleJWTRegister = async (req, res) => {
   if (!email || !password) return res.status(400).json({ 'message': 'Email and password are required.' });
 
 
-  // check for duplicate usernames in the db
+  // check for duplicate emails in the db
   const duplicate = await User.findOne({ email: email }).exec();
   if (duplicate) return res.sendStatus(409); //Conflict 
 

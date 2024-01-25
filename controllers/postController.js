@@ -77,9 +77,32 @@ const updatePost = async (req, res) => {
     if (!post) {
         return res.status(204).json({ "message": `No post matches ID ${req.params.id}.` });
     }
+
+    // PUT CHECKS FOR IF THE NEW OR OLD USER IS NOT FOUND
+    if(req.body.user_id && req.body.user_id !== post.user){
+      //DETACH FROM OLD USER
+      let user = await User.findOne({ posts: post.id }).exec()
+      console.log('detach from old user before:', user);
+      user.posts = user.posts.filter((found_post) => {
+        console.log(found_post, post.id, found_post !== post.id, typeof(found_post), typeof(post.id));
+        return found_post !== post.id
+      })
+      console.log('detach from old user after:', user, user.posts);
+      user.save()
+
+      // ATTACH TO NEW USER
+      user = await User.findOne({ _id: req.body.user_id }).exec()
+      console.log('attach to new user before:', user);
+      user.posts = [...user.posts, post.id]
+      console.log('attach to new user after:', user);
+      user.save()
+    }
+
     if (req.body?.text) post.text = req.body.text;
-    if (req.body?.user) post.user = req.body.user_id;
+    if (req.body?.user_id) post.user = req.body.user_id;
+    console.log(post);
     const result = await post.save();
+
     res.json(result);
   }
   catch(error){

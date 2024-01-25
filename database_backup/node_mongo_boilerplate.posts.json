@@ -1,0 +1,28 @@
+[{
+  "_id": {
+    "$oid": "65abfa512c806fe57ad7cfb8"
+  },
+  "text": "Post 1",
+  "user": "65abfa332c806fe57ad7cfb1",
+  "createdAt": {
+    "$date": "2024-01-20T16:52:33.058Z"
+  },
+  "updatedAt": {
+    "$date": "2024-01-20T16:52:33.058Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "65abfa532c806fe57ad7cfbd"
+  },
+  "text": "Post 1 Edited",
+  "user": "65abfa332c806fe57ad7cfb1",
+  "createdAt": {
+    "$date": "2024-01-20T16:52:35.761Z"
+  },
+  "updatedAt": {
+    "$date": "2024-01-20T17:39:17.168Z"
+  },
+  "__v": 0
+}]
