@@ -1,0 +1,6 @@
+1. Validation
+2. Relations(Done)
+3. Overhaul username to email(Done)
+4. Have a DB level check inside verify middleware(Done)
+5. Move controller logic to services
+6. Repeat above with MySQL or PostgreSQL

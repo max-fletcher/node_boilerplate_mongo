@@ -9036,3 +9036,6 @@
 20240116	15:08:43	77ed393f-6a74-493a-b0db-6a704b5ea8d4	GET	undefined	/api/v1/users
 20240116	15:10:00	61bc542f-cf4d-436d-a628-418b71ffdb52	GET	undefined	/api/v1/posts
 20240116	15:10:03	2ae35f99-3fe1-4eab-9c94-68dc60243b94	GET	undefined	/api/v1/posts/posts-with-user
+20240122	15:54:08	13f84686-d780-4ebb-be8f-cf8939880a4b	GET	undefined	/index
+20240122	15:54:08	91fe7422-a705-44c6-ab64-1aae695c7533	GET	undefined	/css/style.css
+20240122	15:54:09	51e50915-ded4-4309-a05d-43c2cacbdf18	GET	undefined	/favicon.ico
