@@ -2,7 +2,7 @@ const Employee = require('../models/Employee');
 
 const getAllEmployees = async (req, res) => {
     const employees = await Employee.find();
-    if (!employees) return res.status(204).json({ 'message': 'No employees found.' });
+    if (!employees) return res.status(404).json({ 'message': 'No employees found.' });
     res.json(employees);
 }
 
@@ -28,7 +28,7 @@ const getEmployee = async (req, res) => {
 
   const employee = await Employee.findOne({ _id: req.params.id }).exec();
   if (!employee) {
-      return res.status(204).json({ "message": `No employee matches ID ${req.params.id}.` });
+      return res.status(404).json({ "message": `No employee matches ID ${req.params.id}.` });
   }
   res.json(employee);
 }
@@ -41,7 +41,7 @@ const updateEmployee = async (req, res) => {
 
     const employee = await Employee.findOne({ _id: req.params.id }).exec();
     if (!employee) {
-        return res.status(204).json({ "message": `No employee matches ID ${req.params.id}.` });
+        return res.status(404).json({ "message": `No employee matches ID ${req.params.id}.` });
     }
     if (req.body?.firstname) employee.firstname = req.body.firstname;
     if (req.body?.lastname) employee.lastname = req.body.lastname;
@@ -54,7 +54,7 @@ const deleteEmployee = async (req, res) => {
 
     const employee = await Employee.findOne({ _id: req.params.id }).exec();
     if (!employee) {
-        return res.status(204).json({ "message": `No employee matches ID ${req.params.id}.` });
+        return res.status(404).json({ "message": `No employee matches ID ${req.params.id}.` });
     }
     const result = await employee.deleteOne(); //{ _id: req.body.id }
     res.json(result);

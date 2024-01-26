@@ -3,13 +3,14 @@ var mongoose = require('mongoose');
 
 const getAllUsers = async (req, res) => {
   const users = await User.find();
-  if (!users) return res.status(204).json({ 'message': 'No users found' });
+  if (!users) return res.status(404).json({ 'message': 'No users found' });
   res.json(users);
 }
 
 const getAllUsersWithPosts = async (req, res) => {
   const users = await User.find().populate('posts');
-  if (!users) return res.status(204).json({ 'message': 'No users found' });
+    if (!users)
+      return res.status(404).json({ 'message': 'No users found' });
   res.json(users);
 }
 
@@ -21,8 +22,10 @@ const getUser = async (req, res) => {
       }
       const user = await User.findById((req.params.id)).exec();
       if (!user) {
-        return res.status(204).json({ message: `User ID ${req.params.id} not found` });
+        console.log('here1');
+        return res.status(404).json({ message: `User ${req.params.id} not found` });
       }
+      console.log('here2');
       res.json(user);
   } catch (error) {
     res.sendStatus(400);
@@ -32,7 +35,7 @@ const getUser = async (req, res) => {
   // console.log(user, !user, req.body.id);
   // if (!user) {
   //     console.log('HERE');
-  //     return res.status(204).json({ message: `User ID ${req.body.id} not found` });
+  //     return res.status(404).json({ message: `User ID ${req.body.id} not found` });
   // }
   // console.log(user, req.params.id, req.body.id);
   // res.json(user);
@@ -42,7 +45,7 @@ const deleteUser = async (req, res) => {
   if (!req?.params?.id) return res.status(400).json({ "message": 'User ID required' });
   const user = await User.findOne({ _id: req.params.id }).exec();
   if (!user) {
-      return res.status(204).json({ 'message': `User ID ${req.params.id} not found` });
+    return res.status(404).json({ 'message': `User ID ${req.params.id} not found` });
   }
   const result = await user.deleteOne({ _id: req.params.id });
   res.json(result);

@@ -5,7 +5,7 @@ var mongoose = require('mongoose');
 const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find();
-    if (!posts) return res.status(204).json({ 'message': 'No posts found' });
+    if (!posts) return res.status(404).json({ 'message': 'No posts found' });
     res.json(posts);
   }
   catch(error){
@@ -17,7 +17,7 @@ const getAllPosts = async (req, res) => {
 const getAllPostsWithUsers = async (req, res) => {
   try {
     const posts = await Post.find().select('text createdAt updatedAt').populate('user', 'email password'); // ONLY SELECT CERTAIN FIELDS FROM 'Post' AND 'User'
-    if (!posts) return res.status(204).json({ 'message': 'No posts found' });
+    if (!posts) return res.status(404).json({ 'message': 'No posts found' });
     res.json(posts);
   }
   catch(error){
@@ -58,7 +58,7 @@ const getPost = async (req, res) => {
   try {
       const post = await Post.findById((req.params.id)).exec();
       if (!post) {
-        return res.status(204).json({ message: `Post ID ${req.params.id} not found` });
+        return res.status(404).json({ message: `Post ID ${req.params.id} not found` });
       }
       res.json(post);
   } catch (error) {
@@ -75,7 +75,7 @@ const updatePost = async (req, res) => {
   try {
     const post = await Post.findOne({ _id: req.params.id }).exec();
     if (!post) {
-        return res.status(204).json({ "message": `No post matches ID ${req.params.id}.` });
+        return res.status(404).json({ "message": `No post matches ID ${req.params.id}.` });
     }
 
     // PUT CHECKS FOR IF THE NEW OR OLD USER IS NOT FOUND
@@ -117,7 +117,7 @@ const deletePost = async (req, res) => {
   try {
     const post = await Post.findOne({ _id: req.params.id }).exec();
     if (!post) {
-        return res.status(204).json({ 'message': `Post ID ${req.params.id} not found` });
+        return res.status(404).json({ 'message': `Post ID ${req.params.id} not found` });
     }
     const result = await Post.deleteOne({ _id: req.params.id });
     res.json(result);
