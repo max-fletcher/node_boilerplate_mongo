@@ -9,8 +9,6 @@ const verifySimpleJWT = (req, res, next) => {
     // console.log('authHeader', authHeader, 'all_cookies', cookies, 'simple_jwt', simpleJWTToken, 'again', cookies.simple_jwt);
 
     try {
-
-
       if(authHeader || simpleJWTToken){
         console.log(simpleJWTToken);
         if (authHeader && !authHeader?.startsWith('Bearer ')) return res.sendStatus(401);
@@ -33,12 +31,10 @@ const verifySimpleJWT = (req, res, next) => {
             }
         );
       }
-
-
     } catch (error) {
       console.log(error);
-      // res.clearCookie('simple_jwt', { httpOnly: true, sameSite: 'None', secure: true });
-      // return res.sendStatus(403); //invalid token
+      res.clearCookie('simple_jwt', { httpOnly: true, sameSite: 'None', secure: true });
+      return res.sendStatus(403); //invalid token
     }
 }
 
