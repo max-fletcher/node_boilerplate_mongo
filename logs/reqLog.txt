@@ -119,3 +119,16 @@
 20240126	22:54:46	6f8eb382-9c85-4413-b867-e9b95a01989c	DELETE	undefined	/api/v1/posts/65b3e38067dc6fe1cb1da55b
 20240126	22:54:51	3e7806b2-4f19-46c3-965e-d48095ca05c1	DELETE	undefined	/api/v1/posts/65b3e38067dc6fe1cb1da55a
 20240126	22:54:55	3c489240-1583-46a6-8bc9-95ca2c0ed563	GET	undefined	/api/v1/posts
+20240128	17:36:34	1877c7a5-9f7e-47d5-9247-441daebabada	GET	undefined	/api/v1/users
+20240128	17:36:35	f64186d7-74ec-471e-94b6-b1f903f5fa82	GET	undefined	/api/v1/users
+20240128	17:36:59	6e6fd9a0-4485-44b2-9dd9-72258b5fbff4	POST	undefined	/api/v1/simple-jwt-auth/login
+20240128	17:37:09	0678db3f-2c7d-475e-a39d-9fbf55f070c4	POST	undefined	/api/v1/simple-jwt-auth/register
+20240128	17:37:13	f8f19e59-4d4d-4c98-89bd-8a05c5a7b3b7	GET	undefined	/api/v1/simple-jwt-auth/get-auth-user
+20240128	17:37:16	1e99006c-64d9-4d3b-8a1f-77eed9e3c17e	GET	undefined	/api/v1/users
+20240128	17:42:19	37dd92f3-1329-4d2f-8c75-5e11dc298fbf	GET	undefined	/api/v1/users
+20240128	17:42:20	c774b167-d803-4312-9369-dca652b3c2b5	GET	undefined	/api/v1/users
+20240128	17:42:25	66f42a2d-61cf-4990-9403-b59d94ae9df5	GET	undefined	/api/v1/users/users-with-posts
+20240128	17:42:32	1b6f976e-42f6-425a-9685-3d5a2dfecc8a	GET	undefined	/api/v1/users/65abfa332c806fe57ad7cfb1
+20240128	17:42:45	24a0c09d-8f0a-4da6-af63-5517b112b8cd	GET	undefined	/api/v1/users/65a6479865c7b9644e12d355
+20240128	17:42:49	f3024e3e-c8ab-4efb-9574-2f63f184d693	GET	undefined	/api/v1/users/65a6479865c7b9644e12d356
+20240128	17:42:51	57765dec-4421-4170-88eb-9be665b208e7	GET	undefined	/api/v1/users/65a6479865c7b9644e12d355

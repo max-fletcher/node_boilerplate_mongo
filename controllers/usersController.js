@@ -21,10 +21,23 @@ const getAllUsers = async (req, res) => {
 }
 
 const getAllUsersWithPosts = async (req, res) => {
-  const users = await User.find().populate('posts');
-    if (!users)
-      return res.status(404).json({ 'message': 'No users found' });
-  res.json(users);
+  try{
+    const users = await User.find().populate('posts');
+      if (!users)
+        return res.status(404).json({ 'message': 'No users found' });
+    res.json(users);
+  } catch (error) {
+    console.log(error);
+    if(error instanceof ZodError){
+      return res.status(422).json({ type: 'validation', error : error.format()})
+    }
+    else if(error instanceof CustomException || error instanceof NotFoundException){
+      return res.status(error.status).json({ type: 'exception', error : error.message })
+    }
+    else{
+      return res.status(500).json({ type: 'exception', error : 'Something went wrong! Please try again.'})
+    }
+  }
 }
 
 const getUser = async (req, res) => {
@@ -39,7 +52,16 @@ const getUser = async (req, res) => {
       }
       res.json(user);
   } catch (error) {
-    res.sendStatus(400);
+    console.log(error);
+    if(error instanceof ZodError){
+      return res.status(422).json({ type: 'validation', error : error.format()})
+    }
+    else if(error instanceof CustomException || error instanceof NotFoundException){
+      return res.status(error.status).json({ type: 'exception', error : error.message })
+    }
+    else{
+      return res.status(500).json({ type: 'exception', error : 'Something went wrong! Please try again.'})
+    }
   }
 
   // const user = await User.findOne({ _id: req.body.id }).exec();
@@ -53,13 +75,26 @@ const getUser = async (req, res) => {
 }
 
 const deleteUser = async (req, res) => {
-  if (!req?.params?.id) return res.status(400).json({ "message": 'User ID required' });
-  const user = await User.findOne({ _id: req.params.id }).exec();
-  if (!user) {
-    return res.status(404).json({ 'message': `User ID ${req.params.id} not found` });
+  try{
+    if (!req?.params?.id) return res.status(400).json({ "message": 'User ID required' });
+    const user = await User.findOne({ _id: req.params.id }).exec();
+    if (!user) {
+      return res.status(404).json({ 'message': `User ID ${req.params.id} not found` });
+    }
+    const result = await user.deleteOne({ _id: req.params.id });
+    res.json(result);
+  } catch (error) {
+    console.log(error);
+    if(error instanceof ZodError){
+      return res.status(422).json({ type: 'validation', error : error.format()})
+    }
+    else if(error instanceof CustomException || error instanceof NotFoundException){
+      return res.status(error.status).json({ type: 'exception', error : error.message })
+    }
+    else{
+      return res.status(500).json({ type: 'exception', error : 'Something went wrong! Please try again.'})
+    }
   }
-  const result = await user.deleteOne({ _id: req.params.id });
-  res.json(result);
 }
 
 module.exports = {
