@@ -50,12 +50,16 @@ const createNewPost = async (req, res) => {
     const validatedData = StorePostSchema.parse(req.body);
     // return res.json({ data: validatedData})
 
+    const user = await User.findById(validatedData.user_id)
+
+    if(!user)
+      throw new NotFoundException(`User with ID ${validatedData.user_id} not found.`)
+
     const post = await Post.create({
-        text : validatedData.text,
-        user: validatedData.user_id
+      text : validatedData.text,
+      user: validatedData.user_id
     });
 
-    const user = await User.findById(req.body.user_id)
     user.posts.push(post._id)
     const result = await user.save()
 
@@ -65,7 +69,7 @@ const createNewPost = async (req, res) => {
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format()})
     }
-    else if(error instanceof CustomException){
+    else if(error instanceof CustomException || error instanceof NotFoundException){
       return res.status(error.status).json({ type: 'exception', error : error.message })
     }
     else{
@@ -107,7 +111,13 @@ const updatePost = async (req, res) => {
     const validatedData = UpdatePostSchema.parse(req.body);
     // return res.json({ data: validatedData})
 
+    const user = await User.findById(validatedData.user_id)
+
+    if(!user)
+      throw new NotFoundException(`User with ID ${validatedData.user_id} not found.`)
+
     const post = await Post.findOne({ _id: req.params.id }).exec();
+
     if (!post)
       throw new NotFoundException(`No post matches ID ${req.params.id}.`)
 
