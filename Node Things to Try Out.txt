@@ -5,3 +5,4 @@
 5. Move controller logic to services
 6. Repeat above with MySQL or PostgreSQL
 7. TryCatch with custom exceptions(In Progress)
+8. File Upload and Validation

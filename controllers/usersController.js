@@ -2,9 +2,22 @@ const User = require('../models/User');
 var mongoose = require('mongoose');
 
 const getAllUsers = async (req, res) => {
-  const users = await User.find();
-  if (!users) return res.status(404).json({ 'message': 'No users found' });
-  res.json(users);
+  try{
+    const users = await User.find();
+    if (!users) return res.status(404).json({ 'message': 'No users found' });
+    res.json(users);
+  } catch (error) {
+    console.log(error);
+    if(error instanceof ZodError){
+      return res.status(422).json({ type: 'validation', error : error.format()})
+    }
+    else if(error instanceof CustomException || error instanceof NotFoundException){
+      return res.status(error.status).json({ type: 'exception', error : error.message })
+    }
+    else{
+      return res.status(500).json({ type: 'exception', error : 'Something went wrong! Please try again.'})
+    }
+  }
 }
 
 const getAllUsersWithPosts = async (req, res) => {
@@ -22,10 +35,8 @@ const getUser = async (req, res) => {
       }
       const user = await User.findById((req.params.id)).exec();
       if (!user) {
-        console.log('here1');
         return res.status(404).json({ message: `User ${req.params.id} not found` });
       }
-      console.log('here2');
       res.json(user);
   } catch (error) {
     res.sendStatus(400);
