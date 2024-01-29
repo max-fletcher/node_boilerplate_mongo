@@ -1,17 +1,17 @@
+const Comment = require('../models/Comment');
 const Post = require('../models/Post');
-const User = require('../models/User');
 var mongoose = require('mongoose');
 const { ZodError } = require('zod');
-const { StorePostSchema, UpdatePostSchema } = require('../validation/schemas/PostSchema');
+const { StoreCommentSchema, UpdateCommentSchema } = require('../validation/schemas/CommentSchema');
 const NotFoundException = require('../exceptions/NotFoundExceptions');
 const CustomException = require('../exceptions/CustomException');
 const BadRequestException = require('../exceptions/BadRequestException');
 
-const getAllPosts = async (req, res) => {
+const getAllComments = async (req, res) => {
   try {
-    const posts = await Post.find();
-    if (!posts) throw new NotFoundException('No posts found')
-    res.json(posts);
+    const comments = await Comment.find();
+    if (!comments) throw new NotFoundException('No comments found')
+    res.json(comments);
   } catch (error) {
     console.log(error);
     if(error instanceof ZodError){
@@ -26,11 +26,11 @@ const getAllPosts = async (req, res) => {
   }
 }
 
-const getAllPostsWithUsers = async (req, res) => {
+const getAllCommentsWithPost = async (req, res) => {
   try {
-    const posts = await Post.find().select('text createdAt updatedAt').populate('user', 'email password'); // ONLY SELECT CERTAIN FIELDS FROM 'Post' AND 'User'
-    if (!posts) throw new NotFoundException('No posts found')
-    res.json(posts);
+    const comments = await Comment.find().select('text createdAt updatedAt').populate('post', 'text'); // ONLY SELECT CERTAIN FIELDS FROM 'Comment' AND 'Post'
+    if (!comments) throw new NotFoundException('No comments found')
+    res.json(comments);
   } catch (error) {
     console.log(error);
     if(error instanceof ZodError){
@@ -45,28 +45,28 @@ const getAllPostsWithUsers = async (req, res) => {
   }
 }
 
-const createNewPost = async (req, res) => {
+const createNewComment = async (req, res) => {
   try {
     // VALIDATION
-    const validatedData = StorePostSchema.parse(req.body);
+    const validatedData = StoreCommentSchema.parse(req.body);
     // return res.json({ data: validatedData})
 
-    const user = await User.findById(validatedData.user_id)
+    const post = await Post.findById(validatedData.post_id)
 
-    if(!user)
-      throw new NotFoundException(`User with ID ${validatedData.user_id} not found.`)
+    if(!post)
+      throw new NotFoundException(`Comment with ID ${validatedData.post_id} not found.`)
 
-    const post = await Post.create({
+    const comment = await Comment.create({
       text : validatedData.text,
-      user: validatedData.user_id
+      post: validatedData.post_id
     });
 
-    user.posts.push(post._id)
-    const result = await user.save()
+    post.comments.push(comment._id)
+    const result = await post.save()
 
-    res.status(201).json(post);
+    res.status(201).json(comment);
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format() })
     }
@@ -79,15 +79,15 @@ const createNewPost = async (req, res) => {
   }
 }
 
-const getPost = async (req, res) => {
+const getComment = async (req, res) => {
   try {
     if (!req?.params?.id) throw new BadRequestException('Post ID required')
 
-    if(!mongoose.Types.ObjectId.isValid(req.params.id)) throw new BadRequestException('Invalid post id!')
+    if(!mongoose.Types.ObjectId.isValid(req.params.id)) throw new BadRequestException('Invalid comment id!')
 
-    const post = await Post.findById((req?.params?.id)).exec();
-    if (!post) throw new NotFoundException(`Post ID ${validatedDataid} not found`)
-    res.json(post);
+    const comment = await Comment.findById((req?.params?.id)).exec();
+    if (!comment) throw new NotFoundException(`Post ID ${validatedDataid} not found`)
+    res.json(comment);
 
   } catch (error) {
     console.log(error);
@@ -103,64 +103,55 @@ const getPost = async (req, res) => {
   }
 }
 
-const updatePost = async (req, res) => {
-
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
+const updateComment = async (req, res) => {
   try {
     if (!req?.params?.id)
       throw new NotFoundException('ID parameter is required.')
 
     // VALIDATION
-    const validatedData = UpdatePostSchema.parse(req.body);
+    const validatedData = UpdateCommentSchema.parse(req.body)
     // return res.json({ data: validatedData})
 
-    const user = await User.findById(validatedData.user_id)
+    const post = await Post.findById(validatedData.post_id)
 
-    if(!user)
-      throw new NotFoundException(`User with ID ${validatedData.user_id} not found.`)
+    if(!post)
+      throw new NotFoundException(`Post with ID ${validatedData.post_id} not found.`)
 
-    const post = await Post.findOne({ _id: req.params.id }).exec();
+    const comment = await Comment.findOne({ _id: req.params.id }).exec()
 
-    if (!post)
-      throw new NotFoundException(`No post matches ID ${req.params.id}.`)
+    if (!comment)
+      throw new NotFoundException(`No comment matches ID ${req.params.id}.`)
 
-    // PUT CHECKS FOR IF THE NEW OR OLD USER IS NOT FOUND
-    if(validatedData.user_id && validatedData.user_id !== post.user){
-      //DETACH FROM OLD USER
-      let user = await User.findOne({ posts: post.id }).exec()
-      // console.log('detach from old user before:', user);
-      if(user){
-        user.posts = user.posts.filter((found_post) => {
-          // console.log(found_post, post.id, found_post !== post.id, typeof(found_post), typeof(post.id));
-          return found_post !== post.id
+    // PUT CHECKS FOR IF THE NEW OR OLD POST IS NOT FOUND
+    if(validatedData.post_id && validatedData.post_id !== comment.post){
+      //DETACH FROM OLD POST
+      let post = await Post.findOne({ comments: comment.id }).exec()
+      if(post){
+        // console.log('detach from old post before:', post);
+        post.comments = post.comments.filter((found_comment) => {
+          // console.log(found_comment, Comment.id, found_comment !== Comment.id, typeof(found_comment), typeof(Comment.id));
+          return found_comment !== comment.id
         })
-        // console.log('detach from old user after:', user, user.posts);
-        user.save({session})
+        // console.log('detach from old post after:', post, post.comments);
+        post.save()
       }
 
-      // ATTACH TO NEW USER
-      user = await User.findOne({ _id: validatedData.user_id }).exec()
-      if(user){
-        // console.log('attach to new user before:', user);
-        user.posts = [...user.posts, post.id]
-        // console.log('attach to new user after:', user);
-        user.save({session})
-      }
+      // ATTACH TO NEW POST
+      post = await Post.findOne({ _id: validatedData.post_id }).exec()
+      // console.log('attach to new user before:', user);
+      post.comments = [...post.comments, comment.id]
+      // console.log('attach to new user after:', post);
+      post.save()
     }
 
-    if (validatedData?.text) post.text = validatedData.text;
-    if (validatedData?.user_id) post.user = validatedData.user_id;
-    // console.log(post);
-    const result = await post.save({session});
-
-    await session.commitTransaction();
+    if (validatedData?.text) comment.text = validatedData.text;
+    if (validatedData?.post_id) comment.user = validatedData.post_id;
+    // console.log(comment);
+    const result = await comment.save();
 
     res.json(result);
   } catch (error) {
     console.log(error);
-    await session.abortTransaction();
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format()})
     }
@@ -170,32 +161,30 @@ const updatePost = async (req, res) => {
     else{
       return res.status(500).json({ type: 'exception', error : 'Something went wrong! Please try again.'})
     }
-  } finally {
-    session.endSession()
   }
 }
 
-const deletePost = async (req, res) => {
+const deleteComment = async (req, res) => {
   try {
     if (!req?.params?.id) throw new BadRequestException('Post ID required')
 
-    const post = await Post.findOne({ _id: req.params.id }).exec();
-    if (!post)
+    const comment = await Comment.findOne({ _id: req.params.id }).exec();
+    if (!comment)
         throw new NotFoundException(`Post with ID ${req.params.id} not found.`)
 
-    //DETACH FROM OLD USER
-    let user = await User.findOne({ posts: post.id }).exec()
-    // console.log('detach from old user before:', user);
-    if(user){
-      user.posts = user.posts.filter((found_post) => {
-        // console.log(found_post, post.id, found_post !== post.id, typeof(found_post), typeof(post.id));
-        return found_post !== post.id
+    //DETACH FROM POST
+    let post = await Post.findOne({ comments: comment.id }).exec()
+    // console.log('detach from old post before:', post);
+    if(post){
+      post.comments = post.comments.filter((found_comment) => {
+        // console.log(found_comment, Comment.id, found_comment !== Comment.id, typeof(found_comment), typeof(Comment.id));
+        return found_comment !== comment.id
       })
-      // console.log('detach from old user after:', user, user.posts);
-      user.save()
+      // console.log('detach from old post after:', post, post.comments);
+      post.save()
     }
 
-    const result = await Post.deleteOne({ _id: req.params.id });
+    const result = await Comment.deleteOne({ _id: req.params.id });
     res.json(result);
   } catch (error) {
     console.log(error);
@@ -212,10 +201,10 @@ const deletePost = async (req, res) => {
 }
 
 module.exports = {
-  getAllPosts,
-  getAllPostsWithUsers,
-  createNewPost,
-  getPost,
-  updatePost,
-  deletePost
+  getAllComments,
+  getAllCommentsWithPost,
+  createNewComment,
+  getComment,
+  updateComment,
+  deleteComment
 }

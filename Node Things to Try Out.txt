@@ -1,9 +1,11 @@
-1. Validation with custom messages(In Progress)
+1. Validation with custom messages(Done)
 2. Relations(Done)
 3. Overhaul username to email(Done)
 4. Have a DB level check inside verify middleware(Done)
-5. Move controller logic to services
+5. TryCatch with custom exceptions(Done)
+6. DB Transactions when disjointing relational data (i.e for update and delete)
 6. Repeat above with MySQL or PostgreSQL
-7. TryCatch with custom exceptions(Done)
+7. Move controller logic to services
 8. Nested Relations
 9. File Upload and Validation
+10. Scheduled Task

@@ -51,6 +51,7 @@ app.use('/api/v1/simple-jwt-auth', require('./routes/simple-jwt-auth'));
 app.use('/api/v1/employees', verifySimpleJWT, require('./routes/api/employees'));
 app.use('/api/v1/users', verifySimpleJWT, require('./routes/api/users'));
 app.use('/api/v1/posts', verifySimpleJWT, require('./routes/api/posts'));
+app.use('/api/v1/comments', verifySimpleJWT, require('./routes/api/comments'));
 
 // app.use(verifyJWT) //IF YOU WANT TO APPLY MIDDLEWARE TO THE ROUTES BELOW
 // app.use('/api/v1/employees', require('./routes/api/employees'));
