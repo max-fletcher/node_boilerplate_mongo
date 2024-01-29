@@ -1,7 +1,7 @@
 const { z } = require('zod')
 
 const RegisterSchema = z.object({
-  email: z.string().email(),
+  email: z.string({ required_error: "Email is required" }).email(),
   password: z.string().min(8)
 });
 

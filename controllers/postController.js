@@ -2,7 +2,7 @@ const Post = require('../models/Post');
 const User = require('../models/User');
 var mongoose = require('mongoose');
 const { ZodError } = require('zod');
-const { StorePostSchema, UpdatePostSchema, GetPostSchema } = require('../validation/schemas/PostSchema');
+const { StorePostSchema, UpdatePostSchema } = require('../validation/schemas/PostSchema');
 const NotFoundException = require('../exceptions/NotFoundExceptions');
 const CustomException = require('../exceptions/CustomException');
 
@@ -65,9 +65,9 @@ const createNewPost = async (req, res) => {
 
     res.status(201).json(post);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     if(error instanceof ZodError){
-      return res.status(422).json({ type: 'validation', error : error.format()})
+      return res.status(422).json({ type: 'validation', error : error.format() })
     }
     else if(error instanceof CustomException || error instanceof NotFoundException){
       return res.status(error.status).json({ type: 'exception', error : error.message })

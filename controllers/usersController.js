@@ -1,5 +1,8 @@
+const { ZodError } = require('zod');
 const User = require('../models/User');
 var mongoose = require('mongoose');
+const CustomException = require('../exceptions/CustomException');
+const NotFoundException = require('../exceptions/NotFoundExceptions');
 
 const getAllUsers = async (req, res) => {
   try{

@@ -4,7 +4,7 @@ const User = require('../models/User');
 const verifySimpleJWT = (req, res, next) => {
     const authHeader = req.headers.authorization || req.headers.Authorization;
     const cookies = req.cookies;
-    const simpleJWTToken = cookies.simple_jwt
+    const simpleJWTToken = cookies.simple_jwt;
 
     // console.log('authHeader', authHeader, 'all_cookies', cookies, 'simple_jwt', simpleJWTToken, 'again', cookies.simple_jwt);
 
@@ -30,6 +30,9 @@ const verifySimpleJWT = (req, res, next) => {
                 next();
             }
         );
+      }
+      else{
+          return res.sendStatus(403); //invalid token
       }
     } catch (error) {
       console.log(error);
