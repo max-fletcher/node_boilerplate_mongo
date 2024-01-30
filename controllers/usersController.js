@@ -43,6 +43,40 @@ const getAllUsersWithPosts = async (req, res) => {
   }
 }
 
+const getAllUsersWithPostsAndComments = async (req, res) => {
+  try{
+    // USING select TO SELECT SPECIFIC FIELDS OF THE DOCUMENT/ROW/WHATEVER. ALSO USING sort TO SORT DATA AS PER DEFINITION
+    const users = await User.find()
+                  .sort({ 'email': -1 })
+                  .populate({
+                    path: 'posts',
+                    select: 'text createdAt',
+                    options: {
+                      sort: { 'createdAt': -1 } 
+                    },
+                    populate: {
+                      path: 'comments',
+                      select: 'text createdAt',
+                    }
+                  });
+
+      if (!users)
+        return res.status(404).json({ 'message': 'No users found' });
+    res.json(users);
+  } catch (error) {
+    console.log(error);
+    if(error instanceof ZodError){
+      return res.status(422).json({ type: 'validation', error : error.format()})
+    }
+    else if(error instanceof CustomException || error instanceof NotFoundException){
+      return res.status(error.status).json({ type: 'exception', error : error.message })
+    }
+    else{
+      return res.status(500).json({ type: 'exception', error : 'Something went wrong! Please try again.'})
+    }
+  }
+}
+
 const getUser = async (req, res) => {
   try {
     if (!req?.params?.id) return res.status(400).json({ message: 'User ID required' });
@@ -103,6 +137,7 @@ const deleteUser = async (req, res) => {
 module.exports = {
     getAllUsers,
     getAllUsersWithPosts,
+    getAllUsersWithPostsAndComments,
     deleteUser,
     getUser
 }

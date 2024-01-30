@@ -10,6 +10,9 @@ router.route('/')
 router.route('/users-with-posts')
     .get(usersController.getAllUsersWithPosts)
 
+router.route('/users-with-posts-and-comments')
+    .get(usersController.getAllUsersWithPostsAndComments)
+
 router.route('/:id')
     .get(usersController.getUser)
     .delete(usersController.deleteUser)
