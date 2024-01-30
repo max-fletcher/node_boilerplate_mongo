@@ -104,10 +104,6 @@ const getPost = async (req, res) => {
 }
 
 const updatePost = async (req, res) => {
-
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     if (!req?.params?.id)
       throw new NotFoundException('ID parameter is required.')
@@ -137,7 +133,7 @@ const updatePost = async (req, res) => {
           return found_post !== post.id
         })
         // console.log('detach from old user after:', user, user.posts);
-        user.save({session})
+        user.save()
       }
 
       // ATTACH TO NEW USER
@@ -146,21 +142,18 @@ const updatePost = async (req, res) => {
         // console.log('attach to new user before:', user);
         user.posts = [...user.posts, post.id]
         // console.log('attach to new user after:', user);
-        user.save({session})
+        user.save()
       }
     }
 
     if (validatedData?.text) post.text = validatedData.text;
     if (validatedData?.user_id) post.user = validatedData.user_id;
     // console.log(post);
-    const result = await post.save({session});
-
-    await session.commitTransaction();
+    const result = await post.save();
 
     res.json(result);
   } catch (error) {
     console.log(error);
-    await session.abortTransaction();
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format()})
     }
@@ -170,8 +163,6 @@ const updatePost = async (req, res) => {
     else{
       return res.status(500).json({ type: 'exception', error : 'Something went wrong! Please try again.'})
     }
-  } finally {
-    session.endSession()
   }
 }
 
