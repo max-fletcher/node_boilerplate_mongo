@@ -47,20 +47,16 @@ const getAllPostsWithUsers = async (req, res) => {
 
 const createNewPost = async (req, res) => {
 
-
-
   try {
-    return res.status(404).json({body:req.body, file:req.file })
+    req.body.file = req.file
 
     // VALIDATION
-    const validatedData = StorePostSchema.parse(req.body);
+    const validatedData = StorePostSchema.parse(req.body)
     // return res.json({ data: validatedData})
 
+    return res.status(404).json({ body:req.body, data: validatedData })
 
-
-    return res.status(404).json({body:req.body, file:req.file})
-
-
+    // return res.status(404).json({body:req.body, file:req.file, file_errors: req.body.file_errors })  
 
     const user = await User.findById(validatedData.user_id)
 

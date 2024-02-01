@@ -19,6 +19,11 @@ const postSchema = new Schema({
     default: () => [],
     ref: "Comment"
   }],
+  post_images: [{
+    // type: mongoose.SchemaTypes.ObjectId,
+    type: String,
+    default: () => [],
+  }],
 }, { timestamps : true });
 
 module.exports = mongoose.model('Post', postSchema);
