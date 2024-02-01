@@ -46,10 +46,21 @@ const getAllPostsWithUsers = async (req, res) => {
 }
 
 const createNewPost = async (req, res) => {
+
+
+
   try {
+    return res.status(404).json({body:req.body, file:req.file })
+
     // VALIDATION
     const validatedData = StorePostSchema.parse(req.body);
     // return res.json({ data: validatedData})
+
+
+
+    return res.status(404).json({body:req.body, file:req.file})
+
+
 
     const user = await User.findById(validatedData.user_id)
 
@@ -66,7 +77,7 @@ const createNewPost = async (req, res) => {
 
     res.status(201).json(post);
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format() })
     }
