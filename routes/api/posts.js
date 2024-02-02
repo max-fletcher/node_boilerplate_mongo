@@ -5,7 +5,7 @@ const { postImageUpload, postImageSingleUpload } = require('../../services/fileU
 
 router.route('/')
     .get(postController.getAllPosts)
-    .post(postImageSingleUpload(), postController.createNewPost)
+    .post(postImageSingleUpload(10485760, 'posts'), postController.createNewPost)
 
     // fieldsOnly.none()
     // postImageUpload.single('image')

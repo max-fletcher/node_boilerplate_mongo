@@ -47,7 +47,6 @@ const getAllPostsWithUsers = async (req, res) => {
 }
 
 const createNewPost = async (req, res) => {
-
   try {
     /////// IF FILE IS NOT UPLOADED, EARLY RETURN
     if(req.body.file_upload_status && req.body.file_upload_status === 'file_upload_failed'){
@@ -58,27 +57,23 @@ const createNewPost = async (req, res) => {
 
     // VALIDATION
     const validatedData = StorePostSchema.parse(req.body)
-    // return res.json({ data: validatedData})
-
-    return res.status(404).json({ body:req.body, data: validatedData })
-
-    // return res.status(404).json({body:req.body, file:req.file, file_errors: req.body.file_errors })
-
-
-
-
-    /////// DELETE FILE IS VALIDATION FAILS IN CATCH BLOCK
-
-
+    // return res.status(404).json({ body:req.body, data: validatedData })
 
     const user = await User.findById(validatedData.user_id)
 
     if(!user)
       throw new NotFoundException(`User with ID ${validatedData.user_id} not found.`)
 
+    const fullPath = 'http://localhost:3500/' + 
+                      req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
+                      '/' +
+                      req.body.file.filename
+    const images = [fullPath]
+
     const post = await Post.create({
       text : validatedData.text,
-      user: validatedData.user_id
+      user: validatedData.user_id,
+      images: images
     });
 
     user.posts.push(post._id)
@@ -87,13 +82,13 @@ const createNewPost = async (req, res) => {
     res.status(201).json(post);
   } catch (error) {
     console.log(error);
+
+    // DELETE IMAGE FILE IF EXCEPTIONS/ERRROS ARISES. THE PATH IS WITH RESPECT TO THE ROOT OF THE PROJECT.
+    const directoryPath = 'public/temp/'
+    if(req.body.file)
+      await fs.unlinkSync(directoryPath + req.body.file.filename);
+
     if(error instanceof ZodError){
-      // DELETE IMAGE FILE IF VALIDATION FAILS. THE PATH IS WITH RESPECT TO THE ROOT OF THE PROJECT.
-      const directoryPath = 'public/temp/'
-
-      if(req.body.file)
-        await fs.unlinkSync(directoryPath + req.body.file.filename);
-
       return res.status(422).json({ type: 'validation', error : error.format() })
     }
     else if(error instanceof CustomException || error instanceof NotFoundException || error instanceof BadRequestException){

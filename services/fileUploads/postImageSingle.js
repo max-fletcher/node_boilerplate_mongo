@@ -3,21 +3,21 @@ const multer = require('multer');
 const fs = require('fs')
 
 // DEFAULT MAXSIZE = 10 MB
-const postImageSingleUpload = ( maxSize = 10485760 ) => {
+const postImageSingleUpload = ( maxSize = 10485760, path = 'temp') => {
   const storage = multer.diskStorage({
     // WHERE THE FILE SHOULD BE STORED
     destination: function (req, file, cb) {
-      var dir = './public/temp';
+      var dir = './public/' + path;
 
       if (!fs.existsSync(dir))
           fs.mkdirSync(dir, { recursive: true });
 
-      cb(null, 'public/temp/')
+      cb(null, 'public/' + path)
     },
     // LOGIC FOR SETTING THE FILENAME USED TO STORE THE FILE
     filename: function (req, file, cb) {
       console.log(file);
-      const filename = Date.now() + '-' + file.originalname
+      const filename = Date.now() + '-' + file.originalname.trim().replaceAll(' ', '_')
       cb(null, filename)
     }
   })
