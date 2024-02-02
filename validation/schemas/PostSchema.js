@@ -1,7 +1,7 @@
 const { z } = require('zod')
 
 const StorePostSchema = z.object({
-  text: z.string({ required_error: "Post message is required" }).min(10, { message: "Bitch MF" }).max(2, { message: "Yolo" }),
+  text: z.string({ required_error: "Post message is required" }).min(1, { message: "Post message is required" }),
   user_id: z.string(),
   file: z.object({
     fieldname: z.string(),
@@ -20,7 +20,7 @@ const StorePostSchema = z.object({
     destination: z.string(),
     filename: z.string(),
     path: z.string(),
-    size: z.number().max(30000, { message: "File size must be less than 30KB" }),
+    size: z.number().max(5242880, { message: "File size must be less than 5MB" }),
   })
 });
 

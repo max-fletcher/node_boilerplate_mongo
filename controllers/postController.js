@@ -6,6 +6,7 @@ const { StorePostSchema, UpdatePostSchema } = require('../validation/schemas/Pos
 const NotFoundException = require('../exceptions/NotFoundExceptions');
 const CustomException = require('../exceptions/CustomException');
 const BadRequestException = require('../exceptions/BadRequestException');
+const fs = require('fs')
 
 const getAllPosts = async (req, res) => {
   try {
@@ -48,6 +49,11 @@ const getAllPostsWithUsers = async (req, res) => {
 const createNewPost = async (req, res) => {
 
   try {
+    /////// IF FILE IS NOT UPLOADED, EARLY RETURN
+    if(req.body.file_upload_status && req.body.file_upload_status === 'file_upload_failed'){
+      throw new BadRequestException('File too big to be uploaded to server')
+    }
+
     req.body.file = req.file
 
     // VALIDATION
@@ -56,7 +62,14 @@ const createNewPost = async (req, res) => {
 
     return res.status(404).json({ body:req.body, data: validatedData })
 
-    // return res.status(404).json({body:req.body, file:req.file, file_errors: req.body.file_errors })  
+    // return res.status(404).json({body:req.body, file:req.file, file_errors: req.body.file_errors })
+
+
+
+
+    /////// DELETE FILE IS VALIDATION FAILS IN CATCH BLOCK
+
+
 
     const user = await User.findById(validatedData.user_id)
 
@@ -75,9 +88,15 @@ const createNewPost = async (req, res) => {
   } catch (error) {
     console.log(error);
     if(error instanceof ZodError){
+      // DELETE IMAGE FILE IF VALIDATION FAILS. THE PATH IS WITH RESPECT TO THE ROOT OF THE PROJECT.
+      const directoryPath = 'public/temp/'
+
+      if(req.body.file)
+        await fs.unlinkSync(directoryPath + req.body.file.filename);
+
       return res.status(422).json({ type: 'validation', error : error.format() })
     }
-    else if(error instanceof CustomException || error instanceof NotFoundException){
+    else if(error instanceof CustomException || error instanceof NotFoundException || error instanceof BadRequestException){
       return res.status(error.status).json({ type: 'exception', error : error.message })
     }
     else{
