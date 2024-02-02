@@ -12,3 +12,11 @@
 20240201	11:56:16	7999ff6e-9925-4564-8c28-1886683e1aeb	MulterError: Unexpected field
 20240201	11:57:25	cf3d98dd-00e9-49e6-a66b-ad35a2954957	MulterError: Unexpected field
 20240201	14:37:26	bcbb4863-ff0f-4724-a5c8-7472d260c9f8	MulterError: File too large
+20240202	14:33:47	b36d3b86-6f1b-4b2f-a889-6fc1ad457287	Error: ENOENT: no such file or directory, open 'D:\laragon\www\node_boilerplate_mongo\public\posts\1706862827077-sneaky_fox.webp'
+20240202	14:35:28	6e6aab60-53b5-49cb-a53e-727aa090de69	Error: ENOENT: no such file or directory, open 'D:\laragon\www\node_boilerplate_mongo\public\posts\1706862928540-sneaky_fox.webp'
+20240202	16:32:21	d20bd56e-a910-4a4b-a084-e9c005583bfd	MulterError: File too large
+20240202	16:42:55	f001d841-9604-4f4e-bfd7-46de29ec2cc5	MulterError: File too large
+20240202	17:26:19	f113b72c-8a3c-4796-9b86-9e0a433b1064	MulterError: File too large
+20240202	17:26:28	214d2add-b6e2-4435-b422-95e4bd6973b1	MulterError: File too large
+20240202	17:26:30	956828a5-c50b-4ea2-a631-19551ecc9fd5	MulterError: File too large
+20240202	18:22:26	e5ee1259-e086-4961-b508-5e16abf987b0	MulterError: File too large
