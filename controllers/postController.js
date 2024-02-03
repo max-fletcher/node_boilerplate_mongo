@@ -64,7 +64,8 @@ const createNewPost = async (req, res) => {
     if(!user)
       throw new NotFoundException(`User with ID ${validatedData.user_id} not found.`)
 
-    const fullPath = 'http://localhost:3500/' + 
+    const fullPath = process.env.BASE_URL + 
+                      '/' +
                       req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
                       '/' +
                       req.body.file.filename

@@ -2,8 +2,8 @@
 const multer = require('multer');
 const fs = require('fs')
 
-// DEFAULT MAXSIZE = 10 MB
-const postImageSingleUpload = ( maxSize = 10485760, path = 'temp') => {
+// FILEFIELDNAME(required), DEFAULT PATH = 'temp' & DEFAULT MAXSIZE = 10 MB
+const postImageSingleUpload = (fileFieldName, path = 'temp', maxSize = 10485760) => {
   const storage = multer.diskStorage({
     // WHERE THE FILE SHOULD BE STORED
     destination: function (req, file, cb) {
@@ -25,7 +25,7 @@ const postImageSingleUpload = ( maxSize = 10485760, path = 'temp') => {
   // LOGIC FOR IF THE FILE SHOULD BE ALLOWED TO BE UPLOADED OR NOT 
   const singleFileDelayedValidationFilter = (req, file, cb) => {
     const fileSize = parseInt(req.headers["content-length"])
-    console.log('file size', fileSize);
+    // console.log('file size', fileSize);
     if(fileSize > maxSize){
       // if(fileSize > 100000){
         console.log('maxSize', maxSize, 'fileSize', fileSize);
@@ -41,7 +41,7 @@ const postImageSingleUpload = ( maxSize = 10485760, path = 'temp') => {
     storage: storage, 
     // limits: limits, 
     fileFilter: singleFileDelayedValidationFilter 
-  }).single('image')
+  }).single(fileFieldName)
 }
 
 module.exports = { postImageSingleUpload }
