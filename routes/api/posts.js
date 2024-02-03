@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const postController = require('../../controllers/postController');
-const { postImageUpload, postImageSingleUpload } = require('../../services/fileUploads/postImageSingle');
+const { postImageSingleUpload } = require('../../services/fileUploads/postImageSingle');
 
 router.route('/')
     .get(postController.getAllPosts)

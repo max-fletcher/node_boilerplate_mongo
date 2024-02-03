@@ -44,4 +44,27 @@ const postImageSingleUpload = (fileFieldName, path = 'temp', maxSize = 10485760)
   }).single(fileFieldName)
 }
 
-module.exports = { postImageSingleUpload }
+const deleteFileHook = async (req) => {
+      // const directoryPath = 'public/temp/'
+      const directoryPath = 'public/' +
+      req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
+      '/' +
+      req.body.file.filename
+
+      if(req.body.file)
+        await fs.unlinkSync(directoryPath);
+
+      return;
+}
+
+const fullPathResolver = (req) => {
+  const fullPath = process.env.BASE_URL + 
+                    '/' +
+                    req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
+                    '/' +
+                    req.body.file.filename;
+
+  return fullPath;
+}
+
+module.exports = { postImageSingleUpload, deleteFileHook, fullPathResolver }

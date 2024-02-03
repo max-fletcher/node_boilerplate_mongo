@@ -6,7 +6,7 @@ const { StorePostSchema, UpdatePostSchema } = require('../validation/schemas/Pos
 const NotFoundException = require('../exceptions/NotFoundExceptions');
 const CustomException = require('../exceptions/CustomException');
 const BadRequestException = require('../exceptions/BadRequestException');
-const fs = require('fs')
+const { deleteFileHook, fullPathResolver } = require('../services/fileUploads/postImageSingle');
 
 const getAllPosts = async (req, res) => {
   try {
@@ -64,11 +64,8 @@ const createNewPost = async (req, res) => {
     if(!user)
       throw new NotFoundException(`User with ID ${validatedData.user_id} not found.`)
 
-    const fullPath = process.env.BASE_URL + 
-                      '/' +
-                      req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
-                      '/' +
-                      req.body.file.filename
+    // fullPathResolver JUST RETURN A STRING BASED ON WHAT IS IN req.body.file
+    const fullPath = fullPathResolver(req)
     const images = [fullPath]
 
     const post = await Post.create({
@@ -85,9 +82,15 @@ const createNewPost = async (req, res) => {
     console.log(error);
 
     // DELETE IMAGE FILE IF EXCEPTIONS/ERRROS ARISES. THE PATH IS WITH RESPECT TO THE ROOT OF THE PROJECT.
-    const directoryPath = 'public/temp/'
-    if(req.body.file)
-      await fs.unlinkSync(directoryPath + req.body.file.filename);
+    await deleteFileHook(req)
+
+    // THE LINE ABOVE REPLACES THE BLOCK ABOVE AND MIGHT NOT BE NEEDED IF deleteFileHook HAS TIGHTLY COUPLED ANY LOGIC.
+    // const directoryPath = 'public/' +
+    //                       req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
+    //                       '/' +
+    //                       req.body.file.filename
+    // if(req.body.file)
+    //   await fs.unlinkSync(directoryPath);
 
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format() })

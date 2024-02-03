@@ -2,7 +2,7 @@ const { z } = require('zod')
 
 const StorePostSchema = z.object({
   text: z.string({ required_error: "Post message is required" }).min(1, { message: "Post message is required" }),
-  user_id: z.string(),
+  user_id: z.string({ required_error: "User ID is required" }),
   file: z.object({
     fieldname: z.string(),
     originalname: z.union([
