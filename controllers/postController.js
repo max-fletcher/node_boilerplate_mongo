@@ -6,7 +6,8 @@ const { StorePostSchema, UpdatePostSchema } = require('../validation/schemas/Pos
 const NotFoundException = require('../exceptions/NotFoundExceptions');
 const CustomException = require('../exceptions/CustomException');
 const BadRequestException = require('../exceptions/BadRequestException');
-const { deleteFileHook, fullPathResolver } = require('../services/fileUploads/postImageSingle');
+const { deleteSingleFileHook, fullPathSingleResolver } = require('../services/fileUploads/singleFileUpload');
+const { deleteMultipleFileHook, fullPathMultipleResolver } = require('../services/fileUploads/multipleFileUpload');
 
 const getAllPosts = async (req, res) => {
   try {
@@ -64,8 +65,8 @@ const createNewPost = async (req, res) => {
     if(!user)
       throw new NotFoundException(`User with ID ${validatedData.user_id} not found.`)
 
-    // fullPathResolver JUST RETURN A STRING BASED ON WHAT IS IN req.body.file
-    const fullPath = fullPathResolver(req)
+    // fullPathSingleResolver JUST RETURN A STRING BASED ON WHAT IS IN req.body.file
+    const fullPath = fullPathSingleResolver(req)
     const images = [fullPath]
 
     const post = await Post.create({
@@ -82,9 +83,71 @@ const createNewPost = async (req, res) => {
     console.log(error);
 
     // DELETE IMAGE FILE IF EXCEPTIONS/ERRROS ARISES. THE PATH IS WITH RESPECT TO THE ROOT OF THE PROJECT.
-    await deleteFileHook(req)
+    await deleteSingleFileHook(req)
 
-    // THE LINE ABOVE REPLACES THE BLOCK ABOVE AND MIGHT NOT BE NEEDED IF deleteFileHook HAS TIGHTLY COUPLED ANY LOGIC.
+    // THE LINE ABOVE REPLACES THE BLOCK ABOVE AND MIGHT NOT BE NEEDED IF deleteSingleFileHook HAS TIGHTLY COUPLED ANY LOGIC.
+    // const directoryPath = 'public/' +
+    //                       req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
+    //                       '/' +
+    //                       req.body.file.filename
+    // if(req.body.file)
+    //   await fs.unlinkSync(directoryPath);
+
+    if(error instanceof ZodError){
+      return res.status(422).json({ type: 'validation', error : error.format() })
+    }
+    else if(error instanceof CustomException || error instanceof NotFoundException || error instanceof BadRequestException){
+      return res.status(error.status).json({ type: 'exception', error : error.message })
+    }
+    else{
+      return res.status(500).json({ type: 'exception', error : 'Something went wrong! Please try again.'})
+    }
+  }
+}
+
+const createNewPostMultipleImages = async (req, res) => {
+  try {
+    await deleteMultipleFileHook(req)
+
+    return res.status(400).json({ data: req.body, files: req.files })
+
+    /////// IF FILE IS NOT UPLOADED, EARLY RETURN
+    if(req.body.file_upload_status && req.body.file_upload_status === 'file_upload_failed'){
+      throw new BadRequestException('File too big to be uploaded to server')
+    }
+
+    req.body.file = req.file
+
+    // VALIDATION
+    const validatedData = StorePostSchema.parse(req.body)
+    // return res.status(404).json({ body:req.body, data: validatedData })
+
+    const user = await User.findById(validatedData.user_id)
+
+    if(!user)
+      throw new NotFoundException(`User with ID ${validatedData.user_id} not found.`)
+
+    // fullPathSingleResolver JUST RETURN A STRING BASED ON WHAT IS IN req.body.file
+    const fullPath = fullPathSingleResolver(req)
+    const images = [fullPath]
+
+    const post = await Post.create({
+      text : validatedData.text,
+      user: validatedData.user_id,
+      images: images
+    });
+
+    user.posts.push(post._id)
+    const result = await user.save()
+
+    res.status(201).json(post);
+  } catch (error) {
+    console.log(error);
+
+    // DELETE IMAGE FILE IF EXCEPTIONS/ERRROS ARISES. THE PATH IS WITH RESPECT TO THE ROOT OF THE PROJECT.
+    await deleteSingleFileHook(req)
+
+    // THE LINE ABOVE REPLACES THE BLOCK ABOVE AND MIGHT NOT BE NEEDED IF deleteSingleFileHook HAS TIGHTLY COUPLED ANY LOGIC.
     // const directoryPath = 'public/' +
     //                       req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
     //                       '/' +
@@ -231,6 +294,7 @@ module.exports = {
   getAllPosts,
   getAllPostsWithUsers,
   createNewPost,
+  createNewPostMultipleImages,
   getPost,
   updatePost,
   deletePost

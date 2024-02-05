@@ -3,7 +3,7 @@ const multer = require('multer');
 const fs = require('fs')
 
 // FILEFIELDNAME(required), DEFAULT PATH = 'temp' & DEFAULT MAXSIZE = 10 MB
-const postImageSingleUpload = (fileFieldName, path = 'temp', maxSize = 10485760) => {
+const singleFileUpload = (fileFieldName, path = 'temp', maxSize = 10485760) => {
   const storage = multer.diskStorage({
     // WHERE THE FILE SHOULD BE STORED
     destination: function (req, file, cb) {
@@ -16,7 +16,7 @@ const postImageSingleUpload = (fileFieldName, path = 'temp', maxSize = 10485760)
     },
     // LOGIC FOR SETTING THE FILENAME USED TO STORE THE FILE
     filename: function (req, file, cb) {
-      console.log(file);
+      // console.log(file);
       const filename = Date.now() + '-' + file.originalname.trim().replaceAll(' ', '_')
       cb(null, filename)
     }
@@ -28,7 +28,7 @@ const postImageSingleUpload = (fileFieldName, path = 'temp', maxSize = 10485760)
     // console.log('file size', fileSize);
     if(fileSize > maxSize){
       // if(fileSize > 100000){
-        console.log('maxSize', maxSize, 'fileSize', fileSize);
+        // console.log('maxSize', maxSize, 'fileSize', fileSize);
         req.body.file_upload_status = 'file_upload_failed'
         return cb(null, false)
       }
@@ -44,7 +44,7 @@ const postImageSingleUpload = (fileFieldName, path = 'temp', maxSize = 10485760)
   }).single(fileFieldName)
 }
 
-const deleteFileHook = async (req) => {
+const deleteSingleFileHook = async (req) => {
       // const directoryPath = 'public/temp/'
       const directoryPath = 'public/' +
       req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
@@ -57,7 +57,7 @@ const deleteFileHook = async (req) => {
       return;
 }
 
-const fullPathResolver = (req) => {
+const fullPathSingleResolver = (req) => {
   const fullPath = process.env.BASE_URL + 
                     '/' +
                     req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
@@ -67,4 +67,4 @@ const fullPathResolver = (req) => {
   return fullPath;
 }
 
-module.exports = { postImageSingleUpload, deleteFileHook, fullPathResolver }
+module.exports = { singleFileUpload, deleteSingleFileHook, fullPathSingleResolver }
