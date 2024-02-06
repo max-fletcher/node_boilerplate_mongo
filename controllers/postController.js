@@ -177,7 +177,7 @@ const updatePost = async (req, res) => {
     if(req.body.file_upload_status)
     throw new BadRequestException(req.body.file_upload_status)
 
-  req.body.file = req.file
+    req.body.file = req.file
 
     // VALIDATION
     const validatedData = UpdatePostSchema.parse(req.body);
@@ -217,7 +217,7 @@ const updatePost = async (req, res) => {
       }
     }
 
-    deleteSingleFileHook(post.images[0])
+    await deleteSingleFileHook(post.images[0])
 
     const fullPath = fullPathSingleResolver(req)
     const images = [fullPath]
@@ -252,7 +252,7 @@ const updatePostWithMultipleImages = async (req, res) => {
     if(req.body.file_upload_status)
     throw new BadRequestException(req.body.file_upload_status)
 
-  req.body.file = req.file
+    req.body.file = req.file
 
     // VALIDATION
     const validatedData = UpdatePostSchema.parse(req.body);

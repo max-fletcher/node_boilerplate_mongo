@@ -989,3 +989,7 @@
 20240206	17:20:51	1ebe6fc4-9c57-402c-80a0-35f24316d33c	GET	undefined	/posts/1707218382238-pexels-eli%C5%A1ka-krej%C4%8Dov%C3%A1-14539621.jpg
 20240206	17:20:51	c8ae33f5-91f2-4017-a8dd-1a082c5eb792	GET	undefined	/posts/css/style.css
 20240206	17:21:01	318a1d21-f991-4a2b-8907-c52fee16f63e	GET	undefined	/posts/1707218450452-pexels-ahmet-mert-19955808.jpg
+20240206	17:22:11	3688bc93-a2e2-469e-b8d9-1e2f5b0b52ef	PUT	undefined	/api/v1/posts/65c21121c5dfdf2cbb834191
+20240206	17:23:10	e605171f-0f58-4823-977d-f4e00f5e2da8	POST	undefined	/api/v1/posts
+20240206	17:23:25	db0aab00-1b74-465d-ac3f-5205d3dc65e4	POST	undefined	/api/v1/posts
+20240206	17:23:34	63c32365-a28c-4a1b-8c17-4376729e1797	POST	undefined	/api/v1/posts
