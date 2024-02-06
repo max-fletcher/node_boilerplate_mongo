@@ -17,7 +17,8 @@ const multipleFileUpload = (fileFieldName, path = 'temp', maxSize = 31457280) =>
     // LOGIC FOR SETTING THE FILENAME USED TO STORE THE FILE
     filename: function (req, file, cb) {
       // console.log(file);
-      const filename = Date.now() + '-' + file.originalname.trim().replaceAll(' ', '_')
+      const randomNum = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000)
+      const filename = Date.now() + randomNum + '-' + file.originalname.trim().replaceAll(' ', '_')
       cb(null, filename)
     }
   })
@@ -29,7 +30,7 @@ const multipleFileUpload = (fileFieldName, path = 'temp', maxSize = 31457280) =>
     if(fileSize > maxSize){
       // if(fileSize > 100000){
         // console.log('maxSize', maxSize, 'fileSize', fileSize);
-        req.body.file_upload_status = 'file_upload_failed'
+        req.body.file_upload_status = 'File too big to be uploaded to server'
         return cb(null, false)
       }
   
@@ -45,38 +46,47 @@ const multipleFileUpload = (fileFieldName, path = 'temp', maxSize = 31457280) =>
 }
 
 const deleteMultipleFileHook = async (req) => {
-      // const directoryPath = 'public/temp/'
-      // console.log(req.files);
+  if(!Object.keys(req.body.files).length)
+    return;
 
-      // IF EXISTS/NOT EMPTY CHECK
-      Object.values(req.files).forEach(async (fields) => {
-        // IF EXISTS/NOT EMPTY CHECK
-        fields.map(async (field) => {
+  // IF EXISTS/NOT EMPTY CHECK
+  Object.values(req.files).forEach(async (fields) => {
+    // IF EXISTS/NOT EMPTY CHECK
+    fields.map(async (field) => {
+        const directoryPath = 'public/' +
+                                field.path.substring(field.path.indexOf('\\') + 1, field.path.lastIndexOf('\\')) +
+                                '/' +
+                                field.filename
 
-            console.log(field);
+        // IF EXISTS/NOT EMPTY CHECK. DUNNO WHAT TO DO WITH THIS...
+        if(field)
+          await fs.unlinkSync(directoryPath);
+    })
+  })
 
-            const directoryPath = 'public/' +
-            field.path.substring(field.path.indexOf('\\') + 1, field.path.lastIndexOf('\\')) +
-            '/' +
-            field.filename
-
-            // IF EXISTS/NOT EMPTY CHECK. DUNNO WHAT TO DO WITH THIS...
-            if(field)
-              await fs.unlinkSync(directoryPath);
-        })
-      })
-
-      return;
+  return;
 }
 
 const fullPathMultipleResolver = (req) => {
-  const fullPath = process.env.BASE_URL + 
-                    '/' +
-                    req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
-                    '/' +
-                    req.body.file.filename;
+  if(!Object.keys(req.files).length)
+    return;
 
-  return fullPath;
+  formatted_paths = {};
+
+  Object.entries(req.files).map(async(element) => {
+    let paths = [];
+    element[1].map((fileDes) => {
+      paths = [process.env.BASE_URL + 
+              '/' +
+              fileDes.path.substring(fileDes.path.indexOf('\\') + 1, fileDes.path.lastIndexOf('\\')) +
+              '/' +
+              fileDes.filename, ...paths]
+    })
+
+    formatted_paths[element[0]] = paths
+  })
+
+  return formatted_paths;
 }
 
 module.exports = { multipleFileUpload, deleteMultipleFileHook, fullPathMultipleResolver }

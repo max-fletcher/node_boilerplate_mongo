@@ -2,7 +2,7 @@ const Post = require('../models/Post');
 const User = require('../models/User');
 var mongoose = require('mongoose');
 const { ZodError } = require('zod');
-const { StorePostSchema, UpdatePostSchema } = require('../validation/schemas/PostSchema');
+const { StorePostSchema, StorePostMultipleImageSchema, UpdatePostSchema } = require('../validation/schemas/PostSchema');
 const NotFoundException = require('../exceptions/NotFoundExceptions');
 const CustomException = require('../exceptions/CustomException');
 const BadRequestException = require('../exceptions/BadRequestException');
@@ -15,7 +15,7 @@ const getAllPosts = async (req, res) => {
     if (!posts) throw new NotFoundException('No posts found')
     res.json(posts);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format()})
     }
@@ -34,7 +34,7 @@ const getAllPostsWithUsers = async (req, res) => {
     if (!posts) throw new NotFoundException('No posts found')
     res.json(posts);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format()})
     }
@@ -50,9 +50,8 @@ const getAllPostsWithUsers = async (req, res) => {
 const createNewPost = async (req, res) => {
   try {
     /////// IF FILE IS NOT UPLOADED, EARLY RETURN
-    if(req.body.file_upload_status && req.body.file_upload_status === 'file_upload_failed'){
-      throw new BadRequestException('File too big to be uploaded to server')
-    }
+    if(req.body.file_upload_status)
+      throw new BadRequestException(req.body.file_upload_status)
 
     req.body.file = req.file
 
@@ -80,18 +79,9 @@ const createNewPost = async (req, res) => {
 
     res.status(201).json(post);
   } catch (error) {
-    console.log(error);
-
+    // console.log(error);
     // DELETE IMAGE FILE IF EXCEPTIONS/ERRROS ARISES. THE PATH IS WITH RESPECT TO THE ROOT OF THE PROJECT.
     await deleteSingleFileHook(req)
-
-    // THE LINE ABOVE REPLACES THE BLOCK ABOVE AND MIGHT NOT BE NEEDED IF deleteSingleFileHook HAS TIGHTLY COUPLED ANY LOGIC.
-    // const directoryPath = 'public/' +
-    //                       req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
-    //                       '/' +
-    //                       req.body.file.filename
-    // if(req.body.file)
-    //   await fs.unlinkSync(directoryPath);
 
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format() })
@@ -107,19 +97,17 @@ const createNewPost = async (req, res) => {
 
 const createNewPostMultipleImages = async (req, res) => {
   try {
-    await deleteMultipleFileHook(req)
-
-    return res.status(400).json({ data: req.body, files: req.files })
+    // return res.status(400).json({ paths: postImagePaths })
+    // return res.status(400).json({ data: req.body, files: req.files })
 
     /////// IF FILE IS NOT UPLOADED, EARLY RETURN
-    if(req.body.file_upload_status && req.body.file_upload_status === 'file_upload_failed'){
-      throw new BadRequestException('File too big to be uploaded to server')
-    }
+    if(req.body.file_upload_status)
+      throw new BadRequestException(req.body.file_upload_status)
 
-    req.body.file = req.file
+    req.body.files = req.files
 
     // VALIDATION
-    const validatedData = StorePostSchema.parse(req.body)
+    const validatedData = StorePostMultipleImageSchema.parse(req.body)
     // return res.status(404).json({ body:req.body, data: validatedData })
 
     const user = await User.findById(validatedData.user_id)
@@ -127,9 +115,9 @@ const createNewPostMultipleImages = async (req, res) => {
     if(!user)
       throw new NotFoundException(`User with ID ${validatedData.user_id} not found.`)
 
-    // fullPathSingleResolver JUST RETURN A STRING BASED ON WHAT IS IN req.body.file
-    const fullPath = fullPathSingleResolver(req)
-    const images = [fullPath]
+    // postImagePaths RETURN ALL FULLPATHS OF FILES AS AN ARRAY
+    const postImagePaths = fullPathMultipleResolver(req);
+    const images = [...postImagePaths.images1, ...postImagePaths.images2]
 
     const post = await Post.create({
       text : validatedData.text,
@@ -142,18 +130,10 @@ const createNewPostMultipleImages = async (req, res) => {
 
     res.status(201).json(post);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
 
     // DELETE IMAGE FILE IF EXCEPTIONS/ERRROS ARISES. THE PATH IS WITH RESPECT TO THE ROOT OF THE PROJECT.
-    await deleteSingleFileHook(req)
-
-    // THE LINE ABOVE REPLACES THE BLOCK ABOVE AND MIGHT NOT BE NEEDED IF deleteSingleFileHook HAS TIGHTLY COUPLED ANY LOGIC.
-    // const directoryPath = 'public/' +
-    //                       req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
-    //                       '/' +
-    //                       req.body.file.filename
-    // if(req.body.file)
-    //   await fs.unlinkSync(directoryPath);
+    await deleteMultipleFileHook(req)
 
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format() })

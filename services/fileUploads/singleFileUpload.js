@@ -17,7 +17,8 @@ const singleFileUpload = (fileFieldName, path = 'temp', maxSize = 10485760) => {
     // LOGIC FOR SETTING THE FILENAME USED TO STORE THE FILE
     filename: function (req, file, cb) {
       // console.log(file);
-      const filename = Date.now() + '-' + file.originalname.trim().replaceAll(' ', '_')
+      const randomNum = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000)
+      const filename = Date.now() + randomNum + '-' + file.originalname.trim().replaceAll(' ', '_')
       cb(null, filename)
     }
   })
@@ -29,7 +30,7 @@ const singleFileUpload = (fileFieldName, path = 'temp', maxSize = 10485760) => {
     if(fileSize > maxSize){
       // if(fileSize > 100000){
         // console.log('maxSize', maxSize, 'fileSize', fileSize);
-        req.body.file_upload_status = 'file_upload_failed'
+        req.body.file_upload_status = 'File too big to be uploaded to server'
         return cb(null, false)
       }
   
@@ -45,16 +46,18 @@ const singleFileUpload = (fileFieldName, path = 'temp', maxSize = 10485760) => {
 }
 
 const deleteSingleFileHook = async (req) => {
-      // const directoryPath = 'public/temp/'
-      const directoryPath = 'public/' +
-      req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
-      '/' +
-      req.body.file.filename
+  if(!req.body?.file?.path)
+    return;
 
-      if(req.body.file)
-        await fs.unlinkSync(directoryPath);
+  const directoryPath = 'public/' +
+                          req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
+                          '/' +
+                          req.body.file.filename
 
-      return;
+  if(req.body.file)
+    await fs.unlinkSync(directoryPath);
+
+  return;
 }
 
 const fullPathSingleResolver = (req) => {
