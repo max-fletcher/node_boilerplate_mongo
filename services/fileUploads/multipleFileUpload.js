@@ -46,7 +46,7 @@ const multipleFileUpload = (fileFieldName, path = 'temp', maxSize = 31457280) =>
 }
 
 const deleteMultipleFileHook = async (req) => {
-  if(!Object.keys(req.body.files).length)
+  if(!Object.keys(req.files).length)
     return;
 
   // IF EXISTS/NOT EMPTY CHECK

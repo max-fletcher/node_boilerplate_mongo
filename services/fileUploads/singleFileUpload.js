@@ -46,7 +46,7 @@ const singleFileUpload = (fileFieldName, path = 'temp', maxSize = 10485760) => {
 }
 
 const deleteSingleFileHook = async (req) => {
-  if(!req.body?.file?.path)
+  if(!req?.file?.path)
     return;
 
   const directoryPath = 'public/' +

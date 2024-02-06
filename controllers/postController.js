@@ -97,9 +97,6 @@ const createNewPost = async (req, res) => {
 
 const createNewPostMultipleImages = async (req, res) => {
   try {
-    // return res.status(400).json({ paths: postImagePaths })
-    // return res.status(400).json({ data: req.body, files: req.files })
-
     /////// IF FILE IS NOT UPLOADED, EARLY RETURN
     if(req.body.file_upload_status)
       throw new BadRequestException(req.body.file_upload_status)
