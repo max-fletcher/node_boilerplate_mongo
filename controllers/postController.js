@@ -6,7 +6,7 @@ const { StorePostSchema, StorePostMultipleImageSchema, UpdatePostSchema } = requ
 const NotFoundException = require('../exceptions/NotFoundExceptions');
 const CustomException = require('../exceptions/CustomException');
 const BadRequestException = require('../exceptions/BadRequestException');
-const { deleteSingleFileHook, fullPathSingleResolver } = require('../services/fileUploads/singleFileUpload');
+const { deleteSingleReqFileHook, fullPathSingleResolver, deleteSingleFileHook } = require('../services/fileUploads/singleFileUpload');
 const { deleteMultipleFileHook, fullPathMultipleResolver } = require('../services/fileUploads/multipleFileUpload');
 
 const getAllPosts = async (req, res) => {
@@ -81,7 +81,7 @@ const createNewPost = async (req, res) => {
   } catch (error) {
     // console.log(error);
     // DELETE IMAGE FILE IF EXCEPTIONS/ERRROS ARISES. THE PATH IS WITH RESPECT TO THE ROOT OF THE PROJECT.
-    await deleteSingleFileHook(req)
+    await deleteSingleReqFileHook(req)
 
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format() })
@@ -173,6 +173,87 @@ const updatePost = async (req, res) => {
     if (!req?.params?.id)
       throw new NotFoundException('ID parameter is required.')
 
+    /////// IF FILE IS NOT UPLOADED, EARLY RETURN
+    if(req.body.file_upload_status)
+    throw new BadRequestException(req.body.file_upload_status)
+
+  req.body.file = req.file
+
+    // VALIDATION
+    const validatedData = UpdatePostSchema.parse(req.body);
+    // return res.json({ data: validatedData})
+
+    const user = await User.findById(validatedData.user_id)
+
+    if(!user)
+      throw new NotFoundException(`User with ID ${validatedData.user_id} not found.`)
+
+    const post = await Post.findOne({ _id: req.params.id }).exec();
+
+    if (!post)
+      throw new NotFoundException(`No post matches ID ${req.params.id}.`)
+
+    // PUT CHECKS FOR IF THE NEW OR OLD USER IS NOT FOUND
+    if(validatedData.user_id && validatedData.user_id !== post.user){
+      //DETACH FROM OLD USER
+      let user = await User.findOne({ posts: post.id }).exec()
+      // console.log('detach from old user before:', user);
+      if(user){
+        user.posts = user.posts.filter((found_post) => {
+          // console.log(found_post, post.id, found_post !== post.id, typeof(found_post), typeof(post.id));
+          return found_post !== post.id
+        })
+        // console.log('detach from old user after:', user, user.posts);
+        user.save()
+      }
+
+      // ATTACH TO NEW USER
+      user = await User.findOne({ _id: validatedData.user_id }).exec()
+      if(user){
+        // console.log('attach to new user before:', user);
+        user.posts = [...user.posts, post.id]
+        // console.log('attach to new user after:', user);
+        user.save()
+      }
+    }
+
+    deleteSingleFileHook(post.images[0])
+
+    const fullPath = fullPathSingleResolver(req)
+    const images = [fullPath]
+
+    if (validatedData?.text) post.text = validatedData.text
+    if (validatedData?.user_id) post.user = validatedData.user_id
+    post.images = images
+    // console.log(post);
+    const result = await post.save();
+
+    res.json(result);
+  } catch (error) {
+    console.log(error);
+    if(error instanceof ZodError){
+      return res.status(422).json({ type: 'validation', error : error.format()})
+    }
+    else if(error instanceof CustomException || error instanceof NotFoundException || error instanceof BadRequestException){
+      return res.status(error.status).json({ type: 'exception', error : error.message })
+    }
+    else{
+      return res.status(500).json({ type: 'exception', error : 'Something went wrong! Please try again.'})
+    }
+  }
+}
+
+const updatePostWithMultipleImages = async (req, res) => {
+  try {
+    if (!req?.params?.id)
+      throw new NotFoundException('ID parameter is required.')
+
+    /////// IF FILE IS NOT UPLOADED, EARLY RETURN
+    if(req.body.file_upload_status)
+    throw new BadRequestException(req.body.file_upload_status)
+
+  req.body.file = req.file
+
     // VALIDATION
     const validatedData = UpdatePostSchema.parse(req.body);
     // return res.json({ data: validatedData})
@@ -219,6 +300,7 @@ const updatePost = async (req, res) => {
     res.json(result);
   } catch (error) {
     console.log(error);
+    await deleteSingleReqFileHook(req)
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format()})
     }
@@ -274,5 +356,6 @@ module.exports = {
   createNewPostMultipleImages,
   getPost,
   updatePost,
+  updatePostWithMultipleImages,
   deletePost
 }

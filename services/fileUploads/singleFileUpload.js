@@ -45,7 +45,7 @@ const singleFileUpload = (fileFieldName, path = 'temp', maxSize = 10485760) => {
   }).single(fileFieldName)
 }
 
-const deleteSingleFileHook = async (req) => {
+const deleteSingleReqFileHook = async (req) => {  
   if(!req?.file?.path)
     return;
 
@@ -60,6 +60,16 @@ const deleteSingleFileHook = async (req) => {
   return;
 }
 
+const deleteSingleFileHook = async (filePath) => {  
+  console.log('file path', 'public/' + filePath.replace(process.env.BASE_URL + '/', ''));
+  if(!filePath)
+    return;
+
+  await fs.unlinkSync('public/' + filePath.replace(process.env.BASE_URL + '/', ''));
+
+  return;
+}
+
 const fullPathSingleResolver = (req) => {
   const fullPath = process.env.BASE_URL + 
                     '/' +
@@ -70,4 +80,4 @@ const fullPathSingleResolver = (req) => {
   return fullPath;
 }
 
-module.exports = { singleFileUpload, deleteSingleFileHook, fullPathSingleResolver }
+module.exports = { singleFileUpload, deleteSingleReqFileHook, fullPathSingleResolver, deleteSingleFileHook }

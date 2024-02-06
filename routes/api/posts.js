@@ -20,7 +20,11 @@ router.route('/posts-with-user')
 
 router.route('/:id')
     .get(postController.getPost)
-    .put(postController.updatePost)
+    .put(singleFileUpload('image', 'posts', 10485760 ), postController.updatePost)
     .delete(postController.deletePost)
+
+router.route('/:id/multiple')
+    .put(multipleFileUpload( [{ name: 'images1', maxCount: 1 }, { name: 'images2', maxCount: 2 }], 'posts', 31457280 ), // 3145728031457280 === 30MB, 
+            postController.updatePostWithMultipleImages)
 
 module.exports = router;
