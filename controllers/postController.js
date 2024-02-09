@@ -2,12 +2,12 @@ const Post = require('../models/Post');
 const User = require('../models/User');
 var mongoose = require('mongoose');
 const { ZodError } = require('zod');
-const { StorePostSchema, StorePostMultipleImageSchema, UpdatePostSchema } = require('../validation/schemas/PostSchema');
+const { StorePostSchema, StorePostMultipleImageSchema, UpdatePostSchema, UpdatePostMultipleImageSchema } = require('../validation/schemas/PostSchema');
 const NotFoundException = require('../exceptions/NotFoundExceptions');
 const CustomException = require('../exceptions/CustomException');
 const BadRequestException = require('../exceptions/BadRequestException');
-const { deleteSingleReqFileHook, fullPathSingleResolver, deleteSingleFileHook } = require('../services/fileUploads/singleFileUpload');
-const { deleteMultipleFileHook, fullPathMultipleResolver } = require('../services/fileUploads/multipleFileUpload');
+const { deleteSingleReqFileHook, fullPathSingleResolver, deleteSingleFile } = require('../services/fileUploads/singleFileUploadService');
+const { deleteMultipleReqFileHook, fullPathMultipleResolver, deleteMultipleFile } = require('../services/fileUploads/multipleFileUploadService');
 
 const getAllPosts = async (req, res) => {
   try {
@@ -128,9 +128,8 @@ const createNewPostMultipleImages = async (req, res) => {
     res.status(201).json(post);
   } catch (error) {
     // console.log(error);
-
     // DELETE IMAGE FILE IF EXCEPTIONS/ERRROS ARISES. THE PATH IS WITH RESPECT TO THE ROOT OF THE PROJECT.
-    await deleteMultipleFileHook(req)
+    await deleteMultipleReqFileHook(req)
 
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format() })
@@ -175,7 +174,7 @@ const updatePost = async (req, res) => {
 
     /////// IF FILE IS NOT UPLOADED, EARLY RETURN
     if(req.body.file_upload_status)
-    throw new BadRequestException(req.body.file_upload_status)
+      throw new BadRequestException(req.body.file_upload_status)
 
     req.body.file = req.file
 
@@ -217,7 +216,7 @@ const updatePost = async (req, res) => {
       }
     }
 
-    await deleteSingleFileHook(post.images[0])
+    await deleteSingleFile(post.images[0])
 
     const fullPath = fullPathSingleResolver(req)
     const images = [fullPath]
@@ -230,7 +229,10 @@ const updatePost = async (req, res) => {
 
     res.json(result);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
+    // DELETE IMAGE FILE IF EXCEPTIONS/ERRROS ARISES. THE PATH IS WITH RESPECT TO THE ROOT OF THE PROJECT.
+    await deleteSingleReqFileHook(req)
+
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format()})
     }
@@ -250,17 +252,17 @@ const updatePostWithMultipleImages = async (req, res) => {
 
     /////// IF FILE IS NOT UPLOADED, EARLY RETURN
     if(req.body.file_upload_status)
-    throw new BadRequestException(req.body.file_upload_status)
+      throw new BadRequestException(req.body.file_upload_status)
 
-    req.body.file = req.file
+    req.body.files = req.files
 
     // VALIDATION
-    const validatedData = UpdatePostSchema.parse(req.body);
-    // return res.json({ data: validatedData})
+    const validatedData = UpdatePostMultipleImageSchema.parse(req.body);
+    // return res.status(404).json({ body:req.body, data: validatedData })
 
-    const user = await User.findById(validatedData.user_id)
+    const userExists = await User.findById(validatedData.user_id)
 
-    if(!user)
+    if(!userExists)
       throw new NotFoundException(`User with ID ${validatedData.user_id} not found.`)
 
     const post = await Post.findOne({ _id: req.params.id }).exec();
@@ -283,8 +285,7 @@ const updatePostWithMultipleImages = async (req, res) => {
       }
 
       // ATTACH TO NEW USER
-      user = await User.findOne({ _id: validatedData.user_id }).exec()
-      if(user){
+      if(userExists){
         // console.log('attach to new user before:', user);
         user.posts = [...user.posts, post.id]
         // console.log('attach to new user after:', user);
@@ -292,15 +293,27 @@ const updatePostWithMultipleImages = async (req, res) => {
       }
     }
 
-    if (validatedData?.text) post.text = validatedData.text;
-    if (validatedData?.user_id) post.user = validatedData.user_id;
+    //DELETE ALL OLD FILES
+    deleteMultipleFile(post.images)
+
+    // postImagePaths RETURN ALL FULLPATHS OF FILES AS AN ARRAY
+    const postImagePaths = fullPathMultipleResolver(req)
+    const images = [...postImagePaths.images1, ...postImagePaths.images2]
+
+    if (validatedData?.text) post.text = validatedData.text
+    if (validatedData?.user_id) post.user = validatedData.user_id
+    post.images = images
+
     // console.log(post);
     const result = await post.save();
 
     res.json(result);
+
   } catch (error) {
-    console.log(error);
-    await deleteSingleReqFileHook(req)
+    // console.log(error);
+    // DELETE IMAGE FILE IF EXCEPTIONS/ERRROS ARISES. THE PATH IS WITH RESPECT TO THE ROOT OF THE PROJECT.
+    await deleteMultipleReqFileHook(req)
+
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format()})
     }
@@ -332,6 +345,8 @@ const deletePost = async (req, res) => {
       // console.log('detach from old user after:', user, user.posts);
       user.save()
     }
+
+    deleteMultipleFile(post.images)
 
     const result = await Post.deleteOne({ _id: req.params.id });
     res.json(result);

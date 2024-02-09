@@ -60,8 +60,7 @@ const deleteSingleReqFileHook = async (req) => {
   return;
 }
 
-const deleteSingleFileHook = async (filePath) => {
-  console.log('file path', 'public/' + filePath.replace(process.env.BASE_URL + '/', ''));
+const deleteSingleFile = async (filePath) => {
   if(!filePath)
     return;
 
@@ -80,4 +79,4 @@ const fullPathSingleResolver = (req) => {
   return fullPath;
 }
 
-module.exports = { singleFileUpload, deleteSingleReqFileHook, fullPathSingleResolver, deleteSingleFileHook }
+module.exports = { singleFileUpload, deleteSingleReqFileHook, fullPathSingleResolver, deleteSingleFile }

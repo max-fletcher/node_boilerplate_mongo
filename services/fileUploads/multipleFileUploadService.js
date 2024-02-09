@@ -26,7 +26,7 @@ const multipleFileUpload = (fileFieldName, path = 'temp', maxSize = 31457280) =>
   // LOGIC FOR IF THE FILE SHOULD BE ALLOWED TO BE UPLOADED OR NOT 
   const multipleFileDelayedValidationFilter = (req, file, cb) => {
     const fileSize = parseInt(req.headers["content-length"])
-    // console.log('file size', fileSize);
+    // console.log('file size', fileSize, file, req.files);
     if(fileSize > maxSize){
       // if(fileSize > 100000){
         // console.log('maxSize', maxSize, 'fileSize', fileSize);
@@ -45,7 +45,7 @@ const multipleFileUpload = (fileFieldName, path = 'temp', maxSize = 31457280) =>
   }).fields(fileFieldName)
 }
 
-const deleteMultipleFileHook = async (req) => {
+const deleteMultipleReqFileHook = async (req) => {
   if(!Object.keys(req.files).length)
     return;
 
@@ -62,6 +62,17 @@ const deleteMultipleFileHook = async (req) => {
         if(field)
           await fs.unlinkSync(directoryPath);
     })
+  })
+
+  return;
+}
+
+const deleteMultipleFile = async (filePaths) => {
+  if(!filePaths)
+    return;
+
+  filePaths.map(async (filePath) => {
+    await fs.unlinkSync('public/' + filePath.replace(process.env.BASE_URL + '/', ''));
   })
 
   return;
@@ -89,4 +100,4 @@ const fullPathMultipleResolver = (req) => {
   return formatted_paths;
 }
 
-module.exports = { multipleFileUpload, deleteMultipleFileHook, fullPathMultipleResolver }
+module.exports = { multipleFileUpload, deleteMultipleFile, deleteMultipleReqFileHook, fullPathMultipleResolver }

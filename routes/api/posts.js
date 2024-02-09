@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const postController = require('../../controllers/postController');
-const { singleFileUpload } = require('../../services/fileUploads/singleFileUpload');
-const { multipleFileUpload } = require('../../services/fileUploads/multipleFileUpload');
+const { singleFileUpload } = require('../../services/fileUploads/singleFileUploadService');
+const { multipleFileUpload } = require('../../services/fileUploads/multipleFileUploadService');
 
 router.route('/')
     .get(postController.getAllPosts)
@@ -24,7 +24,7 @@ router.route('/:id')
     .delete(postController.deletePost)
 
 router.route('/:id/multiple')
-    .put(multipleFileUpload( [{ name: 'images1', maxCount: 1 }, { name: 'images2', maxCount: 2 }], 'posts', 31457280 ), // 3145728031457280 === 30MB, 
+    .put(multipleFileUpload( [{ name: 'images1', maxCount: 1 }, { name: 'images2', maxCount: 2 }], 'posts', 31457280 ), // 3145728031457280 === 30MB,
             postController.updatePostWithMultipleImages)
 
 module.exports = router;
