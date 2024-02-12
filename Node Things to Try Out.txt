@@ -8,4 +8,5 @@
 7. Move controller logic to services
 8. Nested Relations(Done)
 9. File Upload and Validation
-10. Scheduled Task
+10. Pagination for getAll calls
+11. Scheduled Task
