@@ -4,9 +4,13 @@
 4. Have a DB level check inside verify middleware(Done)
 5. TryCatch with custom exceptions(Done)
 6. DB Transactions when disjointing relational data (i.e for update and delete)(Transaction not possible. Says it needs replica set)
-6. Repeat above with MySQL or PostgreSQL
-7. Move controller logic to services
-8. Nested Relations(Done)
-9. File Upload and Validation
-10. Pagination for getAll calls
-11. Scheduled Task
+7. Rate limiter
+8. Authorization and Access Control(i.e roles and permissions)
+9. Move controller logic to services
+10. Image resizing(cropping/fitting/changing dimensions)
+11. PDF/Invoice generation
+12. Nested Relations(Done)
+13. File Upload and Validation
+14. Pagination for getAll calls
+15. Scheduled Task
+16. Repeat above with MySQL or PostgreSQL
