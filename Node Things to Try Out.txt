@@ -13,4 +13,5 @@
 13. File Upload and Validation
 14. Pagination for getAll calls
 15. Scheduled Task
+16. Check for if file exists where files are deleted
 16. Repeat above with MySQL or PostgreSQL
