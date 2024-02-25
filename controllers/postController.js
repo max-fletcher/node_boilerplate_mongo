@@ -150,7 +150,7 @@ const getPost = async (req, res) => {
     if(!mongoose.Types.ObjectId.isValid(req.params.id)) throw new BadRequestException('Invalid post id!')
 
     const post = await Post.findById((req?.params?.id)).exec();
-    if (!post) throw new NotFoundException(`Post ID ${validatedDataid} not found`)
+    if (!post) throw new NotFoundException(`Post ID ${req?.params?.id} not found`)
     res.json(post);
 
   } catch (error) {

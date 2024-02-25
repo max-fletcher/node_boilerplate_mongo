@@ -38,8 +38,6 @@ const simpleJWTRegister = async (req, res) => {
         "simpleJWTLoginToken": simpleJWTLoginToken
     });
 
-    console.log(result);
-
     // Creates Secure Cookie with refresh token
     res.cookie('simple_jwt', simpleJWTLoginToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
 

@@ -59,8 +59,9 @@ const deleteMultipleReqFileHook = async (req) => {
                                 field.filename
 
         // IF EXISTS/NOT EMPTY CHECK. DUNNO WHAT TO DO WITH THIS...
-        if(field)
+        if(field && fs.existsSync(directoryPath)){
           await fs.unlinkSync(directoryPath);
+        }
     })
   })
 
@@ -72,7 +73,9 @@ const deleteMultipleFile = async (filePaths) => {
     return;
 
   filePaths.map(async (filePath) => {
-    await fs.unlinkSync('public/' + filePath.replace(process.env.BASE_URL + '/', ''));
+    tempFilePath = 'public/' + filePath.replace(process.env.BASE_URL + '/', '')
+    if(fs.existsSync(tempFilePath))
+      await fs.unlinkSync(tempFilePath);
   })
 
   return;

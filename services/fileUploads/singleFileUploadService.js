@@ -54,7 +54,7 @@ const deleteSingleReqFileHook = async (req) => {
                           '/' +
                           req.body.file.filename
 
-  if(req.body.file)
+  if(req.body.file && fs.existsSync(directoryPath))
     await fs.unlinkSync(directoryPath);
 
   return;
@@ -64,7 +64,10 @@ const deleteSingleFile = async (filePath) => {
   if(!filePath)
     return;
 
-  await fs.unlinkSync('public/' + filePath.replace(process.env.BASE_URL + '/', ''));
+  filePath = 'public/' + filePath.replace(process.env.BASE_URL + '/', '')
+
+  if(fs.existsSync(filePath))
+    await fs.unlinkSync(filePath);
 
   return;
 }
