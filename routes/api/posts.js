@@ -18,6 +18,9 @@ router.route('/multiple')
 router.route('/posts-with-user')
     .get(postController.getAllPostsWithUsers)
 
+router.route('/posts-with-pagination')
+    .get(postController.getAllPostsWithpagination)
+
 router.route('/:id')
     .get(postController.getPost)
     .put(singleFileUpload('image', 'posts', 10485760 ), postController.updatePost)

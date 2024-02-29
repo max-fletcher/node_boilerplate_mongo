@@ -8,6 +8,7 @@ const CustomException = require('../exceptions/CustomException');
 const BadRequestException = require('../exceptions/BadRequestException');
 const { deleteSingleReqFileHook, fullPathSingleResolver, deleteSingleFile } = require('../services/fileUploads/singleFileUploadService');
 const { deleteMultipleReqFileHook, fullPathMultipleResolver, deleteMultipleFile } = require('../services/fileUploads/multipleFileUploadService');
+const { paginate } = require('../services/helpers');
 
 const getAllPosts = async (req, res) => {
   try {
@@ -16,6 +17,58 @@ const getAllPosts = async (req, res) => {
     res.json(posts);
   } catch (error) {
     // console.log(error);
+    if(error instanceof ZodError){
+      return res.status(422).json({ type: 'validation', error : error.format()})
+    }
+    else if(error instanceof CustomException || error instanceof NotFoundException){
+      return res.status(error.status).json({ type: 'exception', error : error.message })
+    }
+    else{
+      return res.status(500).json({ type: 'exception', error : 'Something went wrong! Please try again.'})
+    }
+  }
+}
+
+const getAllPostsWithpagination = async (req, res) => {
+  try { 
+    const { search } = req.query
+    const page = (req.query.page && req.query.page >= 1) ? parseInt(req.query.page) : 1
+    const limit = (req.query.limit && req.query.limit >= 1) ? parseInt(req.query.limit) : 10
+
+    // return res.json({ page: page, limit: limit, 
+    //                   path: req.protocol + '://' + req.get('host') + req.baseUrl + req.path.substring(0, req.path - 1), 
+    //                   orig: req.baseUrl + req.path.substring(0, req.path - 1),
+    //                   inter: `${req.protocol}://${req.get('host')}${req.baseUrl}${req.path.substring(0, req.path - 1)}?page=${(parseInt(page)+1)}limit=${limit}search=${search}`
+    //                 })
+
+    const options = {
+                      // Object. Conditions used for filtering data in DB. Should look like this: occupation: /host/, 'name.last': 'Ghost', age: { $gt: 17, $lt: 66 }, likes: { $in: ['vaporizing', 'talking'] }.
+                      where: {
+                        // text: /Post 3/i
+                        // count: { $gt : 30 }
+                      },
+                      // String. For selecting fields from a database
+                      select: '_id text user comments images createdAt count',
+                      // Array of objects. Each object has structure: { path: 'fans', match: { age: { $gte: 21 } }, select: 'name -_id' } etc.
+                      relations: [],
+                      // Object. For custom search in base model. Same as options.where
+                      search: {
+                        text: { $regex: '.*' + search + '.*' }
+                      }
+                    }
+    // return res.json({ options: options })
+
+    // const posts = await Post.find(options.where).limit(1).skip(0);
+    // return res.json({posts: posts })
+
+    return res.json({ posts:await paginate(req, Post, options, limit, page) })
+
+    const { pageDataCount, totalDataCount, currentPage, next, previous, data } = await paginate(req, Post, options, limit, page)
+    return res.json({ pageDataCount:pageDataCount, totalDataCount:totalDataCount, currentPage:currentPage, next:next, previous:previous, data: data })
+
+    res.json(posts);
+  } catch (error) {
+    console.log(error);
     if(error instanceof ZodError){
       return res.status(422).json({ type: 'validation', error : error.format()})
     }
@@ -366,6 +419,7 @@ const deletePost = async (req, res) => {
 
 module.exports = {
   getAllPosts,
+  getAllPostsWithpagination,
   getAllPostsWithUsers,
   createNewPost,
   createNewPostMultipleImages,

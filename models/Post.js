@@ -24,6 +24,11 @@ const postSchema = new Schema({
     type: String,
     default: () => [],
   }],
+  count: {
+    // type: mongoose.SchemaTypes.ObjectId,
+    type: Number,
+    default: () => Math.floor(Math.random() * 100) + 1,
+  },
 }, { timestamps : true });
 
 module.exports = mongoose.model('Post', postSchema);
