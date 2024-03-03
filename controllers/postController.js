@@ -256,7 +256,7 @@ const updatePost = async (req, res) => {
           return found_post !== post.id
         })
         // console.log('detach from old user after:', user, user.posts);
-        user.save()
+        await user.save()
       }
 
       // ATTACH TO NEW USER
@@ -265,7 +265,7 @@ const updatePost = async (req, res) => {
         // console.log('attach to new user before:', user);
         user.posts = [...user.posts, post.id]
         // console.log('attach to new user after:', user);
-        user.save()
+        await user.save()
       }
     }
 
@@ -334,7 +334,7 @@ const updatePostWithMultipleImages = async (req, res) => {
           return found_post !== post.id
         })
         // console.log('detach from old user after:', user, user.posts);
-        user.save()
+        await user.save()
       }
 
       // ATTACH TO NEW USER
@@ -342,7 +342,7 @@ const updatePostWithMultipleImages = async (req, res) => {
         // console.log('attach to new user before:', user);
         user.posts = [...user.posts, post.id]
         // console.log('attach to new user after:', user);
-        user.save()
+        await user.save()
       }
     }
 
@@ -396,7 +396,7 @@ const deletePost = async (req, res) => {
         return found_post !== post.id
       })
       // console.log('detach from old user after:', user, user.posts);
-      user.save()
+      await user.save()
     }
 
     deleteMultipleFile(post.images)

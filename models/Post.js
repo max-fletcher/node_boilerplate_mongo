@@ -19,6 +19,12 @@ const postSchema = new Schema({
     default: () => [],
     ref: "Comment"
   }],
+  tags: [{
+    // type: mongoose.SchemaTypes.ObjectId,
+    type: String,
+    default: () => [],
+    ref: "Tag"
+  }],
   images: [{
     // type: mongoose.SchemaTypes.ObjectId,
     type: String,

@@ -25,18 +25,11 @@ const paginate = async (req, model, options, limit = 10, currentPage = 1) => {
     query = query.select(options.select)
   }
 
-  // if(options.relations && options.relations.length){
-  //   relations.map((rel) => {
-  //     query = query.populate(rel)
-  //   })
-  // }
-
-  // if(options.where && options.where.length){
-  //   query = query.find(options.where)
-  // }
-  // else{
-  //   query = query.find()
-  // }
+  if(options.relations && options.relations.length){
+    relations.map((rel) => {
+      query = query.populate(rel)
+    })
+  }
 
   const data = await query.limit(limit).skip(offset).exec()
   const pageDataCount = data.length
