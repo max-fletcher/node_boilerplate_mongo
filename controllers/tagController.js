@@ -114,14 +114,13 @@ const updateTag = async (req, res) => {
     // remove all duplicate ids
     validatedData.post_id = [...new Set(validatedData.post_id)]
 
-    const posts = await Post.find({ _id: validatedData.post_id }).select('_id tags')
-
-    // check if all post ids provided are valid or not
+    // check if all post ids provided are valid or not(i.e exists in DB)
+    let posts = await Post.find({ _id: validatedData.post_id }).select('_id')
     if(posts.length < validatedData.post_id.length)
       throw new NotFoundException(`Post with ID ${validatedData.post_id} not found.`)
 
+    // check if tag exists
     const tag = await Tag.findOne({ _id: req.params.id }).populate('post').exec()
-
     if (!tag)
       throw new NotFoundException(`No tag matches ID ${req.params.id}.`)
 
@@ -132,38 +131,21 @@ const updateTag = async (req, res) => {
       await Post.updateOne({ _id: prev_post.id }, { tags : prev_post.tags });
     })
 
+    // refetching to refresh data, else, backdated data causes tags array to be incorrect for posts
+    posts = await Post.find({ _id: validatedData.post_id }).select('_id tags')
+
     // push this tag id into posts which are in post_id array
+    let posts_to_append_tag_to = []
     posts.map(async (post) => {
       if(!post.tags.includes(tag.id)){
         post.tags = [...post.tags, tag.id]
+        posts_to_append_tag_to = [...posts_to_append_tag_to, post.id]
       }
       await Post.updateOne({ _id: post.id }, post);
     })
 
-    // // PUT CHECKS FOR IF THE NEW OR OLD POST IS NOT FOUND
-    // if(validatedData.post_id && !tag.post.includes(validatedData.post_id)){
-    //   //DETACH FROM OLD POST
-    //   let old_post = await Post.findOne({ tags: tag.id }).exec()
-    //   if(old_post){
-    //     // console.log('detach from old post before:', post);
-    //     old_post.tags = old_post.tags.filter((found_tag) => {
-    //       // console.log(found_tag, tag.id, found_tag !== tag.id, typeof(found_tag), typeof(tag.id));
-    //       return found_tag !== tag.id
-    //     })
-    //     // console.log('detach from old post after:', post, post.tags);
-    //     await old_post.save()
-    //   }
-
-    //   // ATTACH TO NEW POST
-    //   // new_post = await Post.findOne({ _id: validatedData.post_id }).exec()
-    //   // console.log('attach to new user before:', user);
-    //   new_post.tags = [...new_post.tags, tag.id]
-    //   // console.log('attach to new user after:', post);
-    //   await new_post.save()
-    // }
-
     if (validatedData?.text) tag.text = validatedData.text;
-    // if (validatedData?.post_id) tag.post = [...tag.post, validatedData.post_id];
+    if (validatedData?.post_id) tag.post = posts_to_append_tag_to;
     // console.log(tag);
     const result = await tag.save();
 
