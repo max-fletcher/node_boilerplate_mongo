@@ -49,20 +49,27 @@ const createNewTag = async (req, res) => {
   try {
     // VALIDATION
     const validatedData = StoreTagSchema.parse(req.body);
-    // return res.json({ data: validatedData})
 
-    const post = await Post.findById(validatedData.post_id)
+    // remove all duplicate ids
+    validatedData.post_id = [...new Set(validatedData.post_id)]
 
-    if(!post)
-      throw new NotFoundException(`Tag with ID ${validatedData.post_id} not found.`)
+    // check if all post ids provided are valid or not(i.e exists in DB)
+    const posts = await Post.find({ _id: validatedData.post_id }).select('_id tags')
+    if(posts.length < validatedData.post_id.length)
+      throw new NotFoundException(`Post with ID ${validatedData.post_id} not found.`)
 
     const tag = await Tag.create({
       text : validatedData.text,
       post: validatedData.post_id
     });
 
-    post.tags.push(tag._id)
-    const result = await post.save()
+    // push this tag id into posts which are in post_id array
+    posts.map(async (post) => {
+      if(!post.tags.includes(tag.id))
+        post.tags = [...post.tags, tag.id]
+
+      await Post.updateOne({ _id: post.id }, post);
+    })
 
     res.status(201).json(tag);
   } catch (error) {
@@ -120,7 +127,7 @@ const updateTag = async (req, res) => {
       throw new NotFoundException(`Post with ID ${validatedData.post_id} not found.`)
 
     // check if tag exists
-    const tag = await Tag.findOne({ _id: req.params.id }).populate('post').exec()
+    const tag = await Tag.findOne({ _id: req.params.id }).select('_id')
     if (!tag)
       throw new NotFoundException(`No tag matches ID ${req.params.id}.`)
 
@@ -135,17 +142,15 @@ const updateTag = async (req, res) => {
     posts = await Post.find({ _id: validatedData.post_id }).select('_id tags')
 
     // push this tag id into posts which are in post_id array
-    let posts_to_append_tag_to = []
     posts.map(async (post) => {
-      if(!post.tags.includes(tag.id)){
+      if(!post.tags.includes(tag.id))
         post.tags = [...post.tags, tag.id]
-        posts_to_append_tag_to = [...posts_to_append_tag_to, post.id]
-      }
+
       await Post.updateOne({ _id: post.id }, post);
     })
 
     if (validatedData?.text) tag.text = validatedData.text;
-    if (validatedData?.post_id) tag.post = posts_to_append_tag_to;
+    if (validatedData?.post_id) tag.post = validatedData.post_id;
     // console.log(tag);
     const result = await tag.save();
 
@@ -171,6 +176,13 @@ const deleteTag = async (req, res) => {
     const tag = await Tag.findOne({ _id: req.params.id }).exec();
     if (!tag)
         throw new NotFoundException(`Post with ID ${req.params.id} not found.`)
+
+    // pop/filter out tag ids from posts which already has this tag id
+    const prev_posts = await Post.find({ tags: tag.id })
+    prev_posts.map(async (prev_post) => {
+      prev_post.tags = prev_post.tags.filter((prev_tag) => prev_tag !== tag.id)
+      await Post.updateOne({ _id: prev_post.id }, { tags : prev_post.tags });
+    })
 
     //DETACH FROM POST
     let post = await Post.findOne({ tags: tag.id }).exec()
