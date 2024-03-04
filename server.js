@@ -13,7 +13,6 @@ const credentials = require('./middleware/credentials');
 const mongoose = require('mongoose');
 const connectDB = require('./config/dbConn');
 const PORT = process.env.PORT || 3500;
-
 // routes
 const simpleJWTAuthRoutes = require('./routes/simple-jwt-auth')
 const employeeRoutes = require('./routes/api/employees')
@@ -62,7 +61,6 @@ app.use('/api/v1/users', verifySimpleJWT, userRoutes)
 app.use('/api/v1/posts', verifySimpleJWT, postRoutes)
 app.use('/api/v1/comments', verifySimpleJWT, commentRoutes)
 app.use('/api/v1/tags', verifySimpleJWT, tagRoutes)
-app.use('/api/v1/tags_m', verifySimpleJWT, require('./routes/api/tags_m'))
 
 // app.use(verifyJWT) //IF YOU WANT TO APPLY MIDDLEWARE TO THE ROUTES BELOW
 // app.use('/api/v1/employees', require('./routes/api/employees'));
