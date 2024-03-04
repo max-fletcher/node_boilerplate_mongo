@@ -9,6 +9,7 @@ const BadRequestException = require('../exceptions/BadRequestException');
 const { deleteSingleReqFileHook, fullPathSingleResolver, deleteSingleFile } = require('../services/fileUploads/singleFileUploadService');
 const { deleteMultipleReqFileHook, fullPathMultipleResolver, deleteMultipleFile } = require('../services/fileUploads/multipleFileUploadService');
 const { paginate } = require('../services/helpers');
+const Tag = require('../models/Tag');
 
 const getAllPosts = async (req, res) => {
   try {
@@ -35,15 +36,27 @@ const getAllPostsWithpagination = async (req, res) => {
     const page = (req.query.page && req.query.page >= 1) ? parseInt(req.query.page) : 1
     const limit = (req.query.limit && req.query.limit >= 1) ? parseInt(req.query.limit) : 10
 
+    // FOR CHECKING QUERY STRING
     // return res.json({ page: page, limit: limit, 
-    //                   path: req.protocol + '://' + req.get('host') + req.baseUrl + req.path.substring(0, req.path - 1), 
-    //                   orig: req.baseUrl + req.path.substring(0, req.path - 1),
-    //                   inter: `${req.protocol}://${req.get('host')}${req.baseUrl}${req.path.substring(0, req.path - 1)}?page=${(parseInt(page)+1)}limit=${limit}search=${search}`
+    //                   path: req.protocol + '://' + req.get('host') + req.originalUrl + req.path.substring(0, req.path - 1),
+    //                   orig: req.originalUrl + req.path.substring(0, req.path - 1),
+    //                   inter: `${req.protocol}://${req.get('host')}${req.originalUrl.split('?')[0]}${req.path.substring(0, req.path - 1)}?page=${(parseInt(page)+1)}limit=${limit}search=${search}`
     //                 })
 
+    // MONGODB CAN'T DO NEITHER JOINS NOR SUBQUERIES SO WE HAVE TO DO SOMETHING THIS, WHICH IS A ROUNDABOUT THING TO FILTER PARENT BY CHILD CONSTRAINTS - //
+
+    // take tag array that doesn't have 3 as part of 'text' field string and push it inside 'with_tag_ids'
+    const tag_with_string_match = await Tag.find({ text: { $regex: '.*' + '3' + '.*' } }).select('_id').exec()
+    let with_tag_ids = []
+    tag_with_string_match.map((tag) => {
+      with_tag_ids = [...with_tag_ids, tag._id]
+    })
+
+    // ($nin = not in array, $eq = equal, $ne = not equal, $gte = greater than equal, $gt = greater than etc.)
+    // Object. Conditions used for filtering data in DB. Should look like this: occupation: /host/, 'name.last': 'Ghost', age: { $gt: 17, $lt: 66 }, likes: { $in: ['vaporizing', 'talking'] }.
     const options = {
-                      // Object. Conditions used for filtering data in DB. Should look like this: occupation: /host/, 'name.last': 'Ghost', age: { $gt: 17, $lt: 66 }, likes: { $in: ['vaporizing', 'talking'] }.
                       where: {
+                        tags: { $nin: with_tag_ids } // find posts that doesn't have 'with_tag_ids' in its 'tags' array field
                         // text: /Post 3/i
                         // count: { $gt : 30 }
                       },
@@ -53,13 +66,13 @@ const getAllPostsWithpagination = async (req, res) => {
                       relations: [
                         {
                             path: 'tags',
-                            // match: { text : { $regex: '.*' + 'Bruh' + '.*' } }, // For search using LIKE clause i.e - text LIKE "Bruh" ($eq = equal, $ne = not equal, $gte = greater than equal)
-                            match: { text : { $eq: 'Tag 3 Bruh' } }, // For search using EQUAL clause i.e - text EQUAL "Tag 3 Bruh" ($eq = equal, $ne = not equal, $gte = greater than equal)
+                            // match: { text : { $regex: '.*' + 'Bruh' + '.*' } }, // For search using LIKE clause i.e - text LIKE "Bruh"
+                            // match: { text : { $eq: 'Tag 3 Bruh' } }, // For search using EQUAL clause i.e - text EQUAL "Tag 3 Bruh"
                             select: '_id text '
                         },
                         {
                           path: 'comments',
-                          match: { text : { $eq: 'Comment 1 Bruh' } }, // For search using EQUAL clause i.e - text EQUAL "Comment 1 Bruh" ($eq = equal, $ne = not equal, $gte = greater than equal)
+                          // match: { text : { $eq: 'Comment 1 Bruh' } }, // For search using EQUAL clause i.e - text EQUAL "Comment 1 Bruh"
                           select: '_id text '
                         }
                       ],
@@ -73,7 +86,7 @@ const getAllPostsWithpagination = async (req, res) => {
     // const posts = await Post.find(options.where).limit(1).skip(0);
     // return res.json({posts: posts })
 
-    return res.json({ posts:await paginate(req, Post, options, limit, page, true) })
+    return res.json({ posts:await paginate(req, Post, options, limit, page) })
 
     const { pageDataCount, totalDataCount, currentPage, next, previous, data } = await paginate(req, Post, options, limit, page)
     return res.json({ pageDataCount:pageDataCount, totalDataCount:totalDataCount, currentPage:currentPage, next:next, previous:previous, data: data })

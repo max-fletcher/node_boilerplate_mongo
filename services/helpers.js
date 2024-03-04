@@ -1,6 +1,7 @@
 const paginate = async (req, model, options, limit = 10, currentPage = 1) => {
   limit = parseInt(limit)
   currentPage = parseInt(currentPage)
+  const { search } = req.query
 
   const offset = (currentPage - 1) * limit
 
@@ -33,8 +34,8 @@ const paginate = async (req, model, options, limit = 10, currentPage = 1) => {
   const pageDataCount = data.length
   const totalDataCount = await countQuery.exec()
   let totalPages = Math.ceil(totalDataCount/limit)
-  const next = currentPage < totalPages ? `${req.protocol}://${req.get('host')}${req.baseUrl}${req.path.substring(0, req.path - 1)}?page=${(parseInt(currentPage)+1)}limit=${limit}search=${options.search}` : null
-  const previous = (currentPage > 1 && currentPage <= totalPages) ? `${req.protocol}://${req.get('host')}${req.baseUrl}${req.path.substring(0, req.path - 1)}?page=${(parseInt(currentPage)-1)}limit=${limit}search=${options.search}` : null
+  const next = currentPage < totalPages ? `${req.protocol}://${req.get('host')}${req.originalUrl.split('?')[0]}${req.path.substring(0, req.path - 1)}?page=${(parseInt(currentPage)+1)}&limit=${limit}&search=${search}` : null
+  const previous = (currentPage > 1 && currentPage <= totalPages) ? `${req.protocol}://${req.get('host')}${req.originalUrl.split('?')[0]}${req.path.substring(0, req.path - 1)}?page=${(parseInt(currentPage)-1)}&limit=${limit}&search=${search}` : null
 
   return {
     pageDataCount,
