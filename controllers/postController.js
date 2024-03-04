@@ -83,7 +83,7 @@ const getAllPostsWithpagination = async (req, res) => {
 
 const getAllPostsWithUsers = async (req, res) => {
   try {
-    const posts = await Post.find().select('text createdAt updatedAt').populate('user', 'email password'); // ONLY SELECT CERTAIN FIELDS FROM 'Post' AND 'User'
+    const posts = await Post.find().select('text createdAt updatedAt').populate('user', 'email password').populate('tags'); // ONLY SELECT CERTAIN FIELDS FROM 'Post' AND 'User'
     if (!posts) throw new NotFoundException('No posts found')
     res.json(posts);
   } catch (error) {
