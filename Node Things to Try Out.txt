@@ -10,8 +10,8 @@
 10. Image resizing(cropping/fitting/changing dimensions)
 11. PDF/Invoice generation
 12. Nested Relations(Done)
-13. File Upload and Validation
-14. Pagination for getAll calls
+13. File Upload and Validation(Partly Done. Need to add types.)
+14. Pagination for getAll calls(Done)
 15. Scheduled Task
 16. Check for if file exists where files are deleted(Done)
 16. Repeat above with MySQL or PostgreSQL
