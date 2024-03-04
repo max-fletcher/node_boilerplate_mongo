@@ -50,7 +50,19 @@ const getAllPostsWithpagination = async (req, res) => {
                       // String. For selecting fields from a database
                       select: '_id text user comments images createdAt count',
                       // Array of objects. Each object has structure: { path: 'fans', match: { age: { $gte: 21 } }, select: 'name -_id' } etc.
-                      relations: [],
+                      relations: [
+                        {
+                            path: 'tags',
+                            // match: { text : { $regex: '.*' + 'Bruh' + '.*' } }, // For search using LIKE clause i.e - text LIKE "Bruh" ($eq = equal, $ne = not equal, $gte = greater than equal)
+                            match: { text : { $eq: 'Tag 3 Bruh' } }, // For search using EQUAL clause i.e - text EQUAL "Tag 3 Bruh" ($eq = equal, $ne = not equal, $gte = greater than equal)
+                            select: '_id text '
+                        },
+                        {
+                          path: 'comments',
+                          match: { text : { $eq: 'Comment 1 Bruh' } }, // For search using EQUAL clause i.e - text EQUAL "Comment 1 Bruh" ($eq = equal, $ne = not equal, $gte = greater than equal)
+                          select: '_id text '
+                        }
+                      ],
                       // Object. For custom search in base model. Same as options.where
                       search: {
                         text: { $regex: '.*' + search + '.*' }
@@ -61,7 +73,7 @@ const getAllPostsWithpagination = async (req, res) => {
     // const posts = await Post.find(options.where).limit(1).skip(0);
     // return res.json({posts: posts })
 
-    return res.json({ posts:await paginate(req, Post, options, limit, page) })
+    return res.json({ posts:await paginate(req, Post, options, limit, page, true) })
 
     const { pageDataCount, totalDataCount, currentPage, next, previous, data } = await paginate(req, Post, options, limit, page)
     return res.json({ pageDataCount:pageDataCount, totalDataCount:totalDataCount, currentPage:currentPage, next:next, previous:previous, data: data })

@@ -26,9 +26,7 @@ const paginate = async (req, model, options, limit = 10, currentPage = 1) => {
   }
 
   if(options.relations && options.relations.length){
-    relations.map((rel) => {
-      query = query.populate(rel)
-    })
+    query = query.populate(options.relations)
   }
 
   const data = await query.limit(limit).skip(offset).exec()
