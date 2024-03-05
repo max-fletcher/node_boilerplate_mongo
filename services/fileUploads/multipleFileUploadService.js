@@ -16,7 +16,7 @@ const multipleFileUpload = (fileFieldName, path = 'temp', maxSize = 31457280) =>
     },
     // LOGIC FOR SETTING THE FILENAME USED TO STORE THE FILE
     filename: function (req, file, cb) {
-      // console.log(file);
+      // console.log('file', file);
       const randomNum = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000)
       const filename = Date.now() + randomNum + '-' + file.originalname.trim().replaceAll(' ', '_')
       cb(null, filename)
@@ -29,10 +29,10 @@ const multipleFileUpload = (fileFieldName, path = 'temp', maxSize = 31457280) =>
     // console.log('file size', fileSize, file, req.files);
     if(fileSize > maxSize){
       // if(fileSize > 100000){
-        // console.log('maxSize', maxSize, 'fileSize', fileSize);
-        req.body.file_upload_status = 'File too big to be uploaded to server'
-        return cb(null, false)
-      }
+      // console.log('maxSize', maxSize, 'fileSize', fileSize);
+      req.body.file_upload_status = 'File too big to be uploaded to server'
+      return cb(null, false)
+    }
   
     return cb(null, true)
   }
@@ -68,12 +68,12 @@ const deleteMultipleReqFileHook = async (req) => {
   return;
 }
 
-const deleteMultipleFile = async (filePaths) => {
+const deleteMultipleFile = async (req, filePaths) => {
   if(!filePaths)
     return;
 
   filePaths.map(async (filePath) => {
-    tempFilePath = 'public/' + filePath.replace(process.env.BASE_URL + '/', '')
+    tempFilePath = 'public/' + filePath.replace((process.env.FILE_BASE_URL === '' ? (req.protocol + '://' + req.get('host')) : process.env.FILE_BASE_URL) + '/', '')
     if(fs.existsSync(tempFilePath))
       await fs.unlinkSync(tempFilePath);
   })
@@ -90,7 +90,7 @@ const fullPathMultipleResolver = (req) => {
   Object.entries(req.files).map(async(element) => {
     let paths = [];
     element[1].map((fileDes) => {
-      paths = [process.env.BASE_URL + 
+      paths = [(process.env.FILE_BASE_URL === '' ? (req.protocol + '://' + req.get('host')) : process.env.FILE_BASE_URL) + 
               '/' +
               fileDes.path.substring(fileDes.path.indexOf('\\') + 1, fileDes.path.lastIndexOf('\\')) +
               '/' +

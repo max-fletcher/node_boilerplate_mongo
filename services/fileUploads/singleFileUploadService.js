@@ -60,11 +60,11 @@ const deleteSingleReqFileHook = async (req) => {
   return;
 }
 
-const deleteSingleFile = async (filePath) => {
+const deleteSingleFile = async (req, filePath) => {
   if(!filePath)
     return;
 
-  filePath = 'public/' + filePath.replace(process.env.BASE_URL + '/', '')
+  filePath = 'public/' + filePath.replace((process.env.FILE_BASE_URL === '' ? (req.protocol + '://' + req.get('host')) : process.env.FILE_BASE_URL) + '/', '')
 
   if(fs.existsSync(filePath))
     await fs.unlinkSync(filePath);
@@ -73,7 +73,7 @@ const deleteSingleFile = async (filePath) => {
 }
 
 const fullPathSingleResolver = (req) => {
-  const fullPath = process.env.BASE_URL + 
+  const fullPath = (process.env.FILE_BASE_URL === '' ? (req.protocol + '://' + req.get('host')) : process.env.FILE_BASE_URL) + 
                     '/' +
                     req.body.file.path.substring(req.body.file.path.indexOf('\\') + 1, req.body.file.path.lastIndexOf('\\')) +
                     '/' +

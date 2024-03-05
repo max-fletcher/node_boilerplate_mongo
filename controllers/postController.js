@@ -40,7 +40,8 @@ const getAllPostsWithpagination = async (req, res) => {
     // return res.json({ page: page, limit: limit, 
     //                   path: req.protocol + '://' + req.get('host') + req.originalUrl + req.path.substring(0, req.path - 1),
     //                   orig: req.originalUrl + req.path.substring(0, req.path - 1),
-    //                   inter: `${req.protocol}://${req.get('host')}${req.originalUrl.split('?')[0]}${req.path.substring(0, req.path - 1)}?page=${(parseInt(page)+1)}limit=${limit}search=${search}`
+    //                   inter: `${req.protocol}://${req.get('host')}${req.originalUrl.split('?')[0]}${req.path.substring(0, req.path - 1)}?page=${(parseInt(page)+1)}limit=${limit}search=${search}`,
+    //                   ternary: (process.env.FILE_BASE_URL === '' ? (req.protocol + '://' + req.get('host')) : process.env.FILE_BASE_URL)
     //                 })
 
     // MONGODB CAN'T DO NEITHER JOINS NOR SUBQUERIES SO WE HAVE TO DO SOMETHING THIS, WHICH IS A ROUNDABOUT THING TO FILTER PARENT BY CHILD CONSTRAINTS - //
@@ -294,7 +295,7 @@ const updatePost = async (req, res) => {
       }
     }
 
-    await deleteSingleFile(post.images[0])
+    await deleteSingleFile(req, post.images[0])
 
     const fullPath = fullPathSingleResolver(req)
     const images = [fullPath]
@@ -372,7 +373,7 @@ const updatePostWithMultipleImages = async (req, res) => {
     }
 
     //DELETE ALL OLD FILES
-    deleteMultipleFile(post.images)
+    deleteMultipleFile(req, post.images)
 
     // postImagePaths RETURN ALL FULLPATHS OF FILES AS AN ARRAY
     const postImagePaths = fullPathMultipleResolver(req)
@@ -424,7 +425,7 @@ const deletePost = async (req, res) => {
       await user.save()
     }
 
-    deleteMultipleFile(post.images)
+    deleteMultipleFile(req, post.images)
 
     const result = await Post.deleteOne({ _id: req.params.id });
     res.json(result);

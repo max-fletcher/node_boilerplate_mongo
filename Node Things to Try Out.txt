@@ -7,7 +7,7 @@
 7. Rate limiter
 8. Authorization and Access Control(i.e roles and permissions)
 9. Move controller logic to services
-10. Image resizing(cropping/fitting/changing dimensions)
+10. Image resizing(cropping/fitting/changing dimensions)(Should this be done strictly from frontend ??)
 11. PDF/Invoice generation
 12. Nested Relations(Done)
 13. File Upload and Validation(Partly Done. Need to add types.)
