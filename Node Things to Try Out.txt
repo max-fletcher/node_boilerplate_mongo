@@ -4,7 +4,7 @@
 4. Have a DB level check inside verify middleware(Done)
 5. TryCatch with custom exceptions(Done)
 6. DB Transactions when disjointing relational data (i.e for update and delete)(Transaction not possible. Says it needs replica set)
-7. Rate limiter
+7. Rate limiter(Done)
 8. Authorization and Access Control(i.e roles and permissions)
 9. Move controller logic to services
 10. Image resizing(cropping/fitting/changing dimensions)(Should this be done strictly from frontend ??)
