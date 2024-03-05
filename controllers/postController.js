@@ -8,8 +8,9 @@ const CustomException = require('../exceptions/CustomException');
 const BadRequestException = require('../exceptions/BadRequestException');
 const { deleteSingleReqFileHook, fullPathSingleResolver, deleteSingleFile } = require('../services/fileUploads/singleFileUploadService');
 const { deleteMultipleReqFileHook, fullPathMultipleResolver, deleteMultipleFile } = require('../services/fileUploads/multipleFileUploadService');
-const { paginate } = require('../services/helpers');
+const { paginate } = require('../utils/helpers');
 const Tag = require('../models/Tag');
+const { formattedResponse } = require('../utils/response');
 
 const getAllPosts = async (req, res) => {
   try {
@@ -84,15 +85,16 @@ const getAllPostsWithpagination = async (req, res) => {
                     }
     // return res.json({ options: options })
 
-    // const posts = await Post.find(options.where).limit(1).skip(0);
-    // return res.json({posts: posts })
-
-    return res.json({ posts:await paginate(req, Post, options, limit, page) })
-
     const { pageDataCount, totalDataCount, currentPage, next, previous, data } = await paginate(req, Post, options, limit, page)
-    return res.json({ pageDataCount:pageDataCount, totalDataCount:totalDataCount, currentPage:currentPage, next:next, previous:previous, data: data })
 
-    res.json(posts);
+    return formattedResponse(res, 200, 'Posts Found', {
+      pageDataCount, 
+      totalDataCount, 
+      currentPage, 
+      next, 
+      previous, 
+      data
+    })
   } catch (error) {
     console.log(error);
     if(error instanceof ZodError){

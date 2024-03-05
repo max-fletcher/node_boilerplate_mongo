@@ -9,8 +9,6 @@ const paginate = async (req, model, options, limit = 10, currentPage = 1) => {
     options.where = { ...options.search, ...options.where } // Order here matters. ...options.where is declared later so it will override ...options.search if conditions overlap
   }
 
-  console.log(options);
-
   let query = null
   countQuery = null
   if(options.where && Object.keys(options.where).length){

@@ -15,5 +15,5 @@
 15. Scheduled Task
 16. Check for if file exists where files are deleted(Done)
 16. Repeat above with MySQL or PostgreSQL
-17. Formatted responses
+17. Formatted responses(Done. Is working in conjunction with pagination.)
 18. Use lean in every query to reduce memory overhead
