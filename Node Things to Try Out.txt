@@ -10,7 +10,7 @@
 10. Image resizing(cropping/fitting/changing dimensions)(Should this be done strictly from frontend ??)
 11. PDF/Invoice generation
 12. Nested Relations(Done)
-13. File Upload and Validation(Partly Done. Need to add types.)
+13. File Upload and Validation(Done)(Types not needed since backend(zod) is handling type validation.)
 14. Pagination for getAll calls(Done)
 15. Scheduled Task
 16. Check for if file exists where files are deleted(Done)
