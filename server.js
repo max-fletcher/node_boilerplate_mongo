@@ -12,6 +12,7 @@ const cookieParser = require('cookie-parser');
 const credentials = require('./middleware/credentials');
 const mongoose = require('mongoose');
 const connectDB = require('./config/dbConn');
+const { authRatelimitMiddleware, publicRatelimitMiddleware, globalRatelimitMiddleware } = require('./middleware/ratelimit');
 const PORT = process.env.PORT || 3500;
 // routes
 const simpleJWTAuthRoutes = require('./routes/simple-jwt-auth')
@@ -44,23 +45,26 @@ app.use(express.json());
 //middleware for cookies
 app.use(cookieParser());
 
+// If you don't want to use route specific rate limiter and instead want a global rate limiter instead middleware
+// app.use(globalRatelimitMiddleware)
+
 //serve static files
 app.use('/', express.static(path.join(__dirname, '/public')));
 
 // routes
 app.use('/', require('./routes/root'));
-app.use('/api/v1/register', require('./routes/register'));
-app.use('/api/v1/auth', require('./routes/auth'));
-app.use('/api/v1/refresh', require('./routes/refresh'));
-app.use('/api/v1/logout', require('./routes/logout'));
+app.use('/api/v1/register', publicRatelimitMiddleware, require('./routes/register'));
+app.use('/api/v1/auth', publicRatelimitMiddleware, require('./routes/auth'));
+app.use('/api/v1/refresh', publicRatelimitMiddleware, require('./routes/refresh'));
+app.use('/api/v1/logout', publicRatelimitMiddleware, require('./routes/logout'));
 
 // USING SIMPLE JWT AUTH. REMEMBER TO COMMENT THE ROUTES BELOW THESE TO AVOID ROUTE DUPLICATION/ROUTE CONFLICT
-app.use('/api/v1/simple-jwt-auth', simpleJWTAuthRoutes)
-app.use('/api/v1/employees', verifySimpleJWT, employeeRoutes)
-app.use('/api/v1/users', verifySimpleJWT, userRoutes)
-app.use('/api/v1/posts', verifySimpleJWT, postRoutes)
-app.use('/api/v1/comments', verifySimpleJWT, commentRoutes)
-app.use('/api/v1/tags', verifySimpleJWT, tagRoutes)
+app.use('/api/v1/simple-jwt-auth', publicRatelimitMiddleware, simpleJWTAuthRoutes)
+app.use('/api/v1/employees', authRatelimitMiddleware, verifySimpleJWT, employeeRoutes)
+app.use('/api/v1/users', authRatelimitMiddleware, verifySimpleJWT, userRoutes)
+app.use('/api/v1/posts', authRatelimitMiddleware, verifySimpleJWT, postRoutes)
+app.use('/api/v1/comments', authRatelimitMiddleware, verifySimpleJWT, commentRoutes)
+app.use('/api/v1/tags', authRatelimitMiddleware, verifySimpleJWT, tagRoutes)
 
 // app.use(verifyJWT) //IF YOU WANT TO APPLY MIDDLEWARE TO THE ROUTES BELOW
 // app.use('/api/v1/employees', require('./routes/api/employees'));
