@@ -13,6 +13,7 @@ const credentials = require('./middleware/credentials');
 const mongoose = require('mongoose');
 const connectDB = require('./config/dbConn');
 const { authRatelimitMiddleware, publicRatelimitMiddleware, globalRatelimitMiddleware } = require('./middleware/ratelimit');
+const schedule = require('node-schedule');
 const PORT = process.env.PORT || 3500;
 // routes
 const simpleJWTAuthRoutes = require('./routes/simple-jwt-auth')
@@ -44,6 +45,15 @@ app.use(express.json());
 
 //middleware for cookies
 app.use(cookieParser());
+
+// This scheduler is ran every 10 seconds
+var rule = new schedule.RecurrenceRule();
+rule.second = new schedule.Range(0, 59, 10);
+
+schedule.scheduleJob(rule, function(){
+    console.log(rule);
+    console.log('Today is recognized by Rebecca Black!---------------------------');
+});
 
 // If you don't want to use route specific rate limiter and instead want a global rate limiter instead middleware
 // app.use(globalRatelimitMiddleware)

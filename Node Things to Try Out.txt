@@ -12,7 +12,7 @@
 12. Nested Relations(Done)
 13. File Upload and Validation(Done)(Types not needed since backend(zod) is handling type validation.)
 14. Pagination for getAll calls(Done)
-15. Scheduled Task
+15. Scheduled Task(Done. Works but decided to not apply any data manipulation for this.)
 16. Check for if file exists where files are deleted(Done)
 16. Repeat above with MySQL or PostgreSQL
 17. Formatted responses(Done. Is working in conjunction with pagination.)
