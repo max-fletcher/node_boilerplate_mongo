@@ -69,6 +69,7 @@ const getAllPostsWithpagination = async (req, res) => {
                         {
                             path: 'tags',
                             // match: { text : { $regex: '.*' + 'Bruh' + '.*' } }, // For search using LIKE clause i.e - text LIKE "Bruh"
+                            // match: { text: { $regex: '.*' + 'Bruh' + '.*', $options: 'i' } }, // For search using LIKE with INSENSITIVE clause i.e - text LIKE "Bruh"(Case Insensitive)
                             // match: { text : { $eq: 'Tag 3 Bruh' } }, // For search using EQUAL clause i.e - text EQUAL "Tag 3 Bruh"
                             select: '_id text '
                         },
