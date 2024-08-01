@@ -46,12 +46,8 @@ app.use(express.json());
 //middleware for cookies
 app.use(cookieParser());
 
-// This scheduler is ran every 10 seconds
-var rule = new schedule.RecurrenceRule();
-rule.second = new schedule.Range(0, 59, 10);
-
-schedule.scheduleJob(rule, function(){
-    console.log(rule);
+// run CRON job every 6 hours
+schedule.scheduleJob('* */6 * * *', function(){
     console.log('Today is recognized by Rebecca Black!---------------------------');
 });
 
