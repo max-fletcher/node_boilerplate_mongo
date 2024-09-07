@@ -1,2 +1,0 @@
-1. return multer.none() OR multer.any() from inside "multipleFileUpload" and "singleFileUpload".
-2. Make some custom methods inside Zod validation(using classes maybe) to check unique("isUnique" rule in Ridwan Bhai's HomeRun template for ideas).
